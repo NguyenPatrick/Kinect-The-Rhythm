@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PanelCenter : MonoBehaviour {
+
     public RectTransform startPanel;
+    public RectTransform viewProfilePanel;
+    public RectTransform newProfilePanel;
+    public RectTransform configPanel;
+    public RectTransform howToPanel;
     public RectTransform gamePanel;
-	
 
 	void Start () {
         createGamePanel();
 	}
 	
-
     private void createStartPanel()
     {
         RectTransform startPanelClone = Instantiate(startPanel, startPanel.position, startPanel.rotation);
@@ -21,7 +24,6 @@ public class PanelCenter : MonoBehaviour {
         startPanelClone.offsetMin = new Vector2(0, 0);
         startPanelClone.offsetMax = new Vector2(0, 0);
     }
-
 
     private void createGamePanel()
     {
