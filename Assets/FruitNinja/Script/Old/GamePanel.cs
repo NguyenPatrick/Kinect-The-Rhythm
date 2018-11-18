@@ -68,20 +68,23 @@ public class GamePanel : MonoBehaviour
     {
         if (kinectManager.IsUserDetected())
         {
-            //获取用户ID
+            // get user id
             long userId = kinectManager.GetPrimaryUserID();
             int jointType = (int)KinectInterop.JointType.HandRight;
             if (kinectManager.IsJointTracked(userId, jointType))
             {
-                // 获取用户相对Kinect的位置信息
+                // Get the location information of the user relative to Kinect
                 Vector3 rHandPosition = kinectManager.GetJointKinectPosition(userId, jointType);
                 rightTrail.position = rHandPosition;
-                Vector3 screenPositionV3 = Camera.main.WorldToScreenPoint(rHandPosition); //右手位置信息转换成在屏幕上的三维坐标
-                Vector2 screenPositionV2 = new Vector2(screenPositionV3.x, screenPositionV3.y); //转换成屏幕上的二维坐标
+
+                //Convert the right hand position information into 3D coordinates on the screen
+                Vector3 screenPositionV3 = Camera.main.WorldToScreenPoint(rHandPosition);
+                // Convert to 2D coordinates on the screen
+                Vector2 screenPositionV2 = new Vector2(screenPositionV3.x, screenPositionV3.y);
                 KinectInterop.HandState rHandState = kinectManager.GetRightHandState(userId);
                 if (rHandState == KinectInterop.HandState.Open && RectTransformUtility.RectangleContainsScreenPoint(curFruitRt, screenPositionV2, Camera.main))
                 {
-                    //右手切中水果了
+                    // Cut the fruit in the right hand
                     needDestroyFruit = true;
                     if (curFruit.getType() != Constant.Type_Bomb)
                     {

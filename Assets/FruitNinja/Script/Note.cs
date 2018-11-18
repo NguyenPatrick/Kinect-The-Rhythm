@@ -12,21 +12,17 @@ public class Note : MonoBehaviour
     public bool isPartiallyInHitZone; // some of the note is in the hit zone, half points, no combo
     public bool isFullyInHitZone; // all the note is in the hit zone, full points, combo
     public bool isHitByHand; // if the hand is also in contact with the fruit
-    private bool noteType; // some notes are worth more points than others
 
+    private int spawnPosition; // spawn position of note
     private GameObject noteObject; // prefab of the note
     public const string prefabName = "Note(Clone)";
 
-    public Note(GameObject noteObject)
+    public Note(GameObject noteObject, int spawnPosition)
     {
         this.noteObject = noteObject;
+        this.spawnPosition = spawnPosition;
     }
 
-
-    void Start()
-    {
-        // change note sprites depending on 
-    }
 
     void Update()
     {
@@ -84,5 +80,10 @@ public class Note : MonoBehaviour
 
     public GameObject getNoteObject(){
         return this.noteObject;
+    }
+
+    public int getSpawnPosition()
+    {
+        return this.spawnPosition;
     }
 }

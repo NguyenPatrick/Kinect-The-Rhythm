@@ -4,30 +4,43 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class Game : MonoBehaviour {
 
+
+    private KinectManager kinectManager;
+
+    // score tracking
+    public static int score;
+    private int totalNumberOfNotes;
+    private int numberOfNotesHit;
     public Text scoreText;
     public Text difficultyText;
     public Text comboText;
 
-    private PanelCenter panelCenter;
-    private KinectManager kinectManager;
-
-    public static int score;
-    private int totalNumberOfNotes;
-    private int numberOfNotesHit;
-
+    // prefabs
     public GameObject notePrefab; // scripted note object
     public GameObject hitBoxPrefab; // scripted hitbox object
+    public GameObject triggerPrefab; // scripted control
+    public GameObject chargePrefab; // scripted trigger
+    public GameObject controlPrefab;
+
+    // for pausing
     public static Queue<Note> noteQueue = new Queue<Note>();
     public static Queue<Note> pauseQueue = new Queue<Note>();
 
-    public Transform leftTrail;
-    public Transform rightTrail;
+    public GameObject leftHand;
+    public GameObject rightHand;
+    private Control leftControl;
+    private Control rightControl;
+    private HitBox[] hitBoxes;
 
-    // apex points for the hit boxes, dependant on user
-    private Vector2 spawnCoordinate = new Vector2(7.5f, 2.5f);
+    // apex points for the hit boxes, will be dependant on user
+    private Vector2 hitBoxCoordinate = new Vector2(5f, 2.5f);
+    // y coordinates of locations relative to hitboxes
     private const float spawnFactor = 10f;
+    private const float triggerFactor = 5f; 
+    private const float chargeFactor = 12f; 
 
     public Vector2[] spawnPositions; // possible spawn positions of the notes
     private float waitTime = 1f;
@@ -38,23 +51,41 @@ public class Game : MonoBehaviour {
     // 0 lives
     // 1 timed
     private int gameMode; // easy, intermidiate, advanced
-    private bool trigger; 
+    private bool trigger;
+
+    public enum Hand { Left, Center, Right };
 
     void Start () {
 
         kinectManager = KinectManager.Instance;
 
-        // generates the four hitboxes
-        createHitBox(-spawnCoordinate.x, spawnCoordinate.y);
-        createHitBox(0, spawnCoordinate.y);
-        createHitBox(spawnCoordinate.x, spawnCoordinate.y);
-
-        // generates the spawn points for the notes
+        // generates the hitboxes
+        hitBoxes = new HitBox[3];
+        GameObject leftHitBox = createGameObject(-hitBoxCoordinate.x, hitBoxCoordinate.y, hitBoxPrefab);
+        hitBoxes[0] = new HitBox(leftHitBox, Hand.Left);
+        GameObject centerHitBox = createGameObject(0, hitBoxCoordinate.y, hitBoxPrefab);
+        hitBoxes[1] = new HitBox(centerHitBox, Hand.Center);
+        GameObject rightHitBox = createGameObject(hitBoxCoordinate.x, hitBoxCoordinate.y, hitBoxPrefab);
+        hitBoxes[2] = new HitBox(centerHitBox, Hand.Right);
+       
+        // generates spawn points for the notes
         spawnPositions = new Vector2[3];
-        spawnPositions[0] = new Vector2(-spawnCoordinate.x, spawnCoordinate.y + spawnFactor);
-        spawnPositions[1] = new Vector2(0, spawnCoordinate.y + spawnFactor);
-        spawnPositions[2] = new Vector2(spawnCoordinate.x, spawnCoordinate.y + spawnFactor);
-      
+        spawnPositions[0] = new Vector2(-hitBoxCoordinate.x, hitBoxCoordinate.y + spawnFactor);
+        spawnPositions[1] = new Vector2(0, hitBoxCoordinate.y + spawnFactor);
+        spawnPositions[2] = new Vector2(hitBoxCoordinate.x, hitBoxCoordinate.y + spawnFactor);
+
+        // generates the controls
+        GameObject leftTrigger = createGameObject(-hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor , triggerPrefab);
+        GameObject rightTrigger = createGameObject(hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor, triggerPrefab);
+        GameObject leftCharge = createGameObject(-hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab);
+        GameObject rightCharge = createGameObject(hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab);
+
+        leftControl = new Control(leftTrigger, leftCharge, Hand.Left);
+        rightControl = new Control(rightTrigger, rightCharge, Hand.Right);        
+
+        //leftHand.transform.position = new Vector2(-hitBoxCoordinate.x, -6f);
+        //rightHand.transform.position = new Vector2(hitBoxCoordinate.x, -6f);
+
         trigger = true;
     }
 
@@ -63,17 +94,21 @@ public class Game : MonoBehaviour {
     {
         trigger = false;
         yield return new WaitForSeconds(waitTime);
-
-        if(isPaused == true){
-            yield return new WaitForSeconds(waitTime);
-        }
-
         trigger = true;
     }
 
 
     void Update()
     {
+    
+       leftControl.checkState();
+        
+
+
+       // leftControl.checkState();
+        // if (trigger.isPressed && trigger.isEnabled)
+        // if (inner detects fruit and outer doesnt --> function)
+
 
         // run code to detect the user --> detected user in 3..2..1
         // if(user can't be detected, pause the game)
@@ -89,7 +124,30 @@ public class Game : MonoBehaviour {
         // every x-y seconds, depending on difficulty, generate a note at a random location
         // different note types for different difficulties
 
-        if(isPaused == false){
+        /*
+        // moves controls vertically relative to hands
+        if (kinectManager.IsUserDetected())
+        {
+            long userId = kinectManager.GetPrimaryUserID();
+            int jointType = (int)KinectInterop.JointType.HandRight;
+            if (kinectManager.IsJointTracked(userId, jointType))
+            {
+                Vector3 rHandPosition = kinectManager.GetJointKinectPosition(userId, jointType);
+                rightHand.transform.position = new Vector3(rightHand.transform.position.x, rHandPosition.y, rightHand.transform.position.z);
+            }
+
+            jointType = (int)KinectInterop.JointType.HandLeft;
+            if (kinectManager.IsJointTracked(userId, jointType))
+            {
+                Vector3 lHandPosition = kinectManager.GetJointKinectPosition(userId, jointType);
+                leftHand.transform.position = new Vector3(leftHand.transform.position.x, lHandPosition.y, leftHand.transform.position.z);
+            }
+        }
+        */
+
+
+        if (isPaused == false)
+        {
 
             if (trigger == true)
             {
@@ -103,28 +161,27 @@ public class Game : MonoBehaviour {
         }
     }
 
-    private void createHitBox(float x, float y){
-        Vector2 newHitBoxPosition = new Vector2(x, y);
-        GameObject newHitBoxPreab = (GameObject)Instantiate(hitBoxPrefab, newHitBoxPosition, hitBoxPrefab.transform.rotation);
+    private GameObject createGameObject(float x, float y, GameObject prefab){
+        Vector2 newPosition = new Vector2(x, y);
+        GameObject newPrefab = (GameObject)Instantiate(prefab, newPosition, prefab.transform.rotation);
+        return newPrefab;
     }
 
 
     private void createNote()
     {
-        int spawnCoordinatePosition = Random.Range(0, spawnPositions.Length);
-        Vector2 tempSpawnCoordinate = spawnPositions[spawnCoordinatePosition];
+        int hitBoxCoordinatePosition = Random.Range(0, spawnPositions.Length);
+        Vector2 tempSpawnCoordinate = spawnPositions[hitBoxCoordinatePosition];
 
         Vector2 newNotePosition = new Vector2(tempSpawnCoordinate.x, tempSpawnCoordinate.y); // based on a random spawn point
         GameObject newNoteObject = (GameObject)Instantiate(notePrefab, newNotePosition, notePrefab.transform.rotation);
-        Note newNote = new Note(newNoteObject);
+        Note newNote = new Note(newNoteObject, hitBoxCoordinatePosition);
         noteQueue.Enqueue(newNote);
-
 
         newNoteObject.GetComponent<Rigidbody2D>().velocity = new Vector2(0, speed);
     }
 
-    public static void removeNote()
-    {
+    public static void removeNote(){
 
         Note n = noteQueue.Dequeue();
 
@@ -138,14 +195,8 @@ public class Game : MonoBehaviour {
             // partial points
             score = score + 50;
         }
-        else
-        {
-            // no points
-        }
 
-        // destroy the Note
         Destroy(n.getNoteObject());
-
     }
 
 
@@ -164,14 +215,12 @@ public class Game : MonoBehaviour {
 
         isPaused = false;
 
-        while (pauseQueue.Count > 0)
-        {
+        while (pauseQueue.Count > 0){
             Note n = pauseQueue.Dequeue();
             n.getNoteObject().GetComponent<Rigidbody2D>().velocity = new Vector2(0, speed);
             noteQueue.Enqueue(n);
         }
+
+        StartCoroutine(noteTimer());
     }
-
-
-   
 }
