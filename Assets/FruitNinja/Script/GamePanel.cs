@@ -196,6 +196,7 @@ public class GamePanel : MonoBehaviour
         rtf.anchoredPosition = curRtf.anchoredPosition;
         rtf.localScale = curRtf.localScale;
         Rigidbody2D r2D = fruit.GetComponent<Rigidbody2D>();
+
         if (isLeft)
         {
             r2D.AddForce(new Vector2(-halfForceX, halfForceY));

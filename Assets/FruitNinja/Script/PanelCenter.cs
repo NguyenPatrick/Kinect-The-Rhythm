@@ -7,7 +7,6 @@ public class PanelCenter : MonoBehaviour {
     public RectTransform startPanel;
     public RectTransform viewProfilePanel;
     public RectTransform newProfilePanel;
-    public RectTransform configPanel;
     public RectTransform howToPanel;
     public RectTransform gamePanel;
 

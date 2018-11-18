@@ -17,6 +17,7 @@ public class Fruit : MonoBehaviour {
 
     void Start () {
 
+        Debug.Log("qwer");
         image.sprite = fruitSprites[type];
         image.SetNativeSize();
         if (type == Constant.Type_Bomb)
