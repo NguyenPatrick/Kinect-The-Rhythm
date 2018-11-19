@@ -5,27 +5,36 @@ using UnityEngine;
 public class Charge : MonoBehaviour
 {
     private bool isCharged;
-    private GameObject chargeObject;
+    private bool isDetected;
 
-    public Charge(GameObject chargeObject){
-        this.chargeObject = chargeObject;
+    private void Start()
+    {
+        isCharged = false;
     }
 
     void OnTriggerEnter2D(Collider2D col)
     {
         if (col.gameObject.name == "Hand") {
-            isCharged = true;
+            isDetected = true;
         }
     }
 
-    public GameObject getChargeObject()
+    void OnTriggerExit2D(Collider2D col)
     {
-        return this.chargeObject;
+        if (col.gameObject.name == "Hand")
+        {
+            isDetected = false;
+        }
     }
 
-    public void resetIsCharged()
+    public bool getIsDetected()
     {
-        this.isCharged = false;
+        return this.isDetected;
+    }
+
+    public void setIsCharged(bool val)
+    {
+        this.isCharged = val;
     }
 
     public bool getIsCharged()

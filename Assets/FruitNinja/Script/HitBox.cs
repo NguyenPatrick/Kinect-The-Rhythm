@@ -13,10 +13,6 @@ public class HitBox : MonoBehaviour
     private GameObject hitBoxObject;
     private Game.Hand type;
 
-    public HitBox(GameObject obj, Game.Hand type){
-        this.hitBoxObject = obj;
-        this.type = type;
-    }
 
     // detects note collisions
     void OnTriggerEnter2D(Collider2D col)

@@ -33,7 +33,16 @@ public class Game : MonoBehaviour {
     public GameObject rightHand;
     private Control leftControl;
     private Control rightControl;
-    private HitBox[] hitBoxes;
+
+
+    HitBox leftHitBox;
+    HitBox centerHitBox;
+    HitBox rightHitBox;
+    Trigger leftTrigger;
+    Trigger rightTrigger;
+    Charge leftCharge;
+    Charge rightCharge;
+
 
     // apex points for the hit boxes, will be dependant on user
     private Vector2 hitBoxCoordinate = new Vector2(5f, 2.5f);
@@ -44,7 +53,7 @@ public class Game : MonoBehaviour {
 
     public Vector2[] spawnPositions; // possible spawn positions of the notes
     private float waitTime = 1f;
-    private float speed = -8f; // temp value
+    private float speed = -3f; // temp value
 
     private bool isPaused;
 
@@ -60,14 +69,10 @@ public class Game : MonoBehaviour {
         kinectManager = KinectManager.Instance;
 
         // generates the hitboxes
-        hitBoxes = new HitBox[3];
-        GameObject leftHitBox = createGameObject(-hitBoxCoordinate.x, hitBoxCoordinate.y, hitBoxPrefab);
-        hitBoxes[0] = new HitBox(leftHitBox, Hand.Left);
-        GameObject centerHitBox = createGameObject(0, hitBoxCoordinate.y, hitBoxPrefab);
-        hitBoxes[1] = new HitBox(centerHitBox, Hand.Center);
-        GameObject rightHitBox = createGameObject(hitBoxCoordinate.x, hitBoxCoordinate.y, hitBoxPrefab);
-        hitBoxes[2] = new HitBox(centerHitBox, Hand.Right);
-       
+        leftHitBox = createGameObject(-hitBoxCoordinate.x, hitBoxCoordinate.y, hitBoxPrefab).GetComponent<HitBox>();
+        centerHitBox = createGameObject(0, hitBoxCoordinate.y, hitBoxPrefab).GetComponent<HitBox>();
+        rightHitBox = createGameObject(hitBoxCoordinate.x, hitBoxCoordinate.y, hitBoxPrefab).GetComponent<HitBox>();
+      
         // generates spawn points for the notes
         spawnPositions = new Vector2[3];
         spawnPositions[0] = new Vector2(-hitBoxCoordinate.x, hitBoxCoordinate.y + spawnFactor);
@@ -75,13 +80,10 @@ public class Game : MonoBehaviour {
         spawnPositions[2] = new Vector2(hitBoxCoordinate.x, hitBoxCoordinate.y + spawnFactor);
 
         // generates the controls
-        GameObject leftTrigger = createGameObject(-hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor , triggerPrefab);
-        GameObject rightTrigger = createGameObject(hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor, triggerPrefab);
-        GameObject leftCharge = createGameObject(-hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab);
-        GameObject rightCharge = createGameObject(hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab);
-
-        leftControl = new Control(leftTrigger, leftCharge, Hand.Left);
-        rightControl = new Control(rightTrigger, rightCharge, Hand.Right);        
+        leftTrigger = createGameObject(-hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor , triggerPrefab).GetComponent<Trigger>(); 
+        rightTrigger = createGameObject(hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor, triggerPrefab).GetComponent<Trigger>(); 
+        leftCharge = createGameObject(-hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>(); 
+        rightCharge = createGameObject(hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>(); 
 
         //leftHand.transform.position = new Vector2(-hitBoxCoordinate.x, -6f);
         //rightHand.transform.position = new Vector2(hitBoxCoordinate.x, -6f);
@@ -100,12 +102,33 @@ public class Game : MonoBehaviour {
 
     void Update()
     {
-    
-       leftControl.checkState();
-        
+        // trigger is clicked
+        if(rightTrigger.getIsDetected()){
+
+            // only valid if trigger is charged
+            if(rightCharge.getIsCharged() == true){
+            
+                rightCharge.setIsCharged(false);
+                Debug.Log("TRIGGERED");
+                removeNote();
+
+            }
+        }
+
+        // if uncharged, charge again
+        if(rightCharge.getIsDetected() == true){
+            if(rightCharge.getIsCharged() == false){
+                Debug.Log("Charged");
+                rightCharge.setIsCharged(true);
+            }
+        }
 
 
-       // leftControl.checkState();
+        if(leftTrigger.getIsDetected()){
+
+        }
+
+
         // if (trigger.isPressed && trigger.isEnabled)
         // if (inner detects fruit and outer doesnt --> function)
 
@@ -188,11 +211,13 @@ public class Game : MonoBehaviour {
         if (n.isPartiallyInHitZone == false && n.isFullyInHitZone == true)
         {
             // full points
+            Debug.Log("FULL");
             score = score + 100;
         }
         else if (n.isPartiallyInHitZone == true && n.isFullyInHitZone == true)
         {
             // partial points
+            Debug.Log("PARTIAL");
             score = score + 50;
         }
 

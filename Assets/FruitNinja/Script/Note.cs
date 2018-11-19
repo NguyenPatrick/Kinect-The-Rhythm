@@ -74,7 +74,6 @@ public class Note : MonoBehaviour
         }
         if(col.gameObject.name == HitBox.outerHitZoneName){
             isPartiallyInHitZone = false;
-            Game.removeNote();
         }
     }
 

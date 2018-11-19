@@ -4,29 +4,37 @@ using UnityEngine;
 
 public class Trigger : MonoBehaviour {
 
+    private bool isDetected;
     private bool isTriggered;
-    private GameObject triggerObject;
 
-    public Trigger(GameObject triggerObject){
-        this.triggerObject = triggerObject;
+    void Start()
+    {
+        isTriggered = false;
     }
 
     void OnTriggerEnter2D(Collider2D col)
     {
         if (col.gameObject.name == "Hand")
         {
-            Debug.Log("TRIGGER");
-
+            isDetected = true;
         }
     }
 
-    public GameObject getTriggerObject(){
-        return this.triggerObject;
+    void OnTriggerExit2D(Collider2D col)
+    {
+        if (col.gameObject.name == "Hand")
+        {
+            isDetected = false;
+        }
     }
 
-    public void resetIsTriggered()
+    public bool getIsDetected(){
+        return this.isDetected;
+    }
+
+    public void setIsTriggered(bool val)
     {
-        this.isTriggered = false;
+        this.isTriggered = val;
     }
 
     public bool getIsTriggered()
