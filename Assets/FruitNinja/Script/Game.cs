@@ -28,7 +28,7 @@ public class Game : MonoBehaviour {
     // for pausing
     public static Queue<Note> noteQueue = new Queue<Note>();
     public static Queue<Note> pauseQueue = new Queue<Note>();
-
+    
     public GameObject leftHand;
     public GameObject rightHand;
     private Control leftControl;
@@ -45,14 +45,14 @@ public class Game : MonoBehaviour {
 
 
     // apex points for the hit boxes, will be dependant on user
-    private Vector2 hitBoxCoordinate = new Vector2(5f, 2.5f);
+    private Vector2 hitBoxCoordinate = new Vector2(5f, 1.5f);
     // y coordinates of locations relative to hitboxes
     private const float spawnFactor = 10f;
     private const float triggerFactor = 5f; 
     private const float chargeFactor = 12f; 
 
     public Vector2[] spawnPositions; // possible spawn positions of the notes
-    private float waitTime = 1f;
+    private float waitTime = 2f;
     private float speed = -3f; // temp value
 
     private bool isPaused;
@@ -102,31 +102,6 @@ public class Game : MonoBehaviour {
 
     void Update()
     {
-        // trigger is clicked
-        if(rightTrigger.getIsDetected()){
-
-            // only valid if trigger is charged
-            if(rightCharge.getIsCharged() == true){
-            
-                rightCharge.setIsCharged(false);
-                Debug.Log("TRIGGERED");
-                removeNote();
-
-            }
-        }
-
-        // if uncharged, charge again
-        if(rightCharge.getIsDetected() == true){
-            if(rightCharge.getIsCharged() == false){
-                Debug.Log("Charged");
-                rightCharge.setIsCharged(true);
-            }
-        }
-
-
-        if(leftTrigger.getIsDetected()){
-
-        }
 
 
         // if (trigger.isPressed && trigger.isEnabled)
@@ -166,12 +141,13 @@ public class Game : MonoBehaviour {
                 leftHand.transform.position = new Vector3(leftHand.transform.position.x, lHandPosition.y, leftHand.transform.position.z);
             }
         }
+
+       
         */
 
 
         if (isPaused == false)
         {
-
             if (trigger == true)
             {
                 createNote();
@@ -182,6 +158,32 @@ public class Game : MonoBehaviour {
 
             }
         }
+
+        // trigger is clicked
+        if (rightTrigger.getIsDetected())
+        {
+            // only valid if trigger is charged
+            if (rightCharge.getIsCharged() == true)
+            {
+                rightCharge.setNotCharged();
+                rightTrigger.setTriggered();
+                removeNote();
+            }
+        }
+
+        // if uncharged, charge again
+        if (rightCharge.getIsDetected() == true)
+        {
+            rightCharge.setCharged();
+            rightTrigger.setNotTriggered();
+
+        }
+
+        if (leftTrigger.getIsDetected())
+        {
+
+        }
+
     }
 
     private GameObject createGameObject(float x, float y, GameObject prefab){
@@ -206,24 +208,49 @@ public class Game : MonoBehaviour {
 
     public static void removeNote(){
 
-        Note n = noteQueue.Dequeue();
+        Note note = null;
 
-        if (n.isPartiallyInHitZone == false && n.isFullyInHitZone == true)
+        if(pauseQueue.Count > 0){
+            note = pauseQueue.Dequeue().getNoteObject().GetComponent<Note>();
+        }
+        else{
+            note = noteQueue.Dequeue().getNoteObject().GetComponent<Note>();
+        }
+
+
+
+
+        if (note.isPartiallyInHitZone == false && note.isFullyInHitZone == true)
         {
             // full points
             Debug.Log("FULL");
             score = score + 100;
+            Destroy(note.gameObject);
         }
-        else if (n.isPartiallyInHitZone == true && n.isFullyInHitZone == true)
+        else if (note.isPartiallyInHitZone == true && note.isFullyInHitZone == true)
         {
             // partial points
             Debug.Log("PARTIAL");
             score = score + 50;
+            Destroy(note.gameObject);
+        }
+        else
+        {
+            pauseQueue.Enqueue(note);
         }
 
-        Destroy(n.getNoteObject());
+       
+
     }
 
+    public static void deQueue(){
+        if(pauseQueue.Count > 0){
+            pauseQueue.Dequeue();
+        }
+        else{
+            noteQueue.Dequeue();
+        }
+    }
 
     public void pauseGame(){
 

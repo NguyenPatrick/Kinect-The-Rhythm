@@ -23,23 +23,12 @@ public class Note : MonoBehaviour
         this.spawnPosition = spawnPosition;
     }
 
-
-    void Update()
+    void Start()
     {
-        if (isPartiallyInHitZone == false && isFullyInHitZone == true)
-        {
-            // full points
-            //Destroy(gameObject);
-        }
-        else if (isPartiallyInHitZone == true && isFullyInHitZone == true)
-        {
-            // partial points
-        }
-        else
-        {
-            // no points
-        }
+        isPartiallyInHitZone = false;
+        isFullyInHitZone = false;
     }
+
 
     // *****                                                                                            
     // WHENEVER NOTE ENTER HITBOX COLLISION, SET isInHitBox TO TRUE
@@ -52,6 +41,13 @@ public class Note : MonoBehaviour
     // box hit zone
     void OnTriggerEnter2D(Collider2D col)
     {
+
+        if (col.gameObject.name == "Trigger(Clone)")
+        {
+            Game.deQueue();
+            Destroy(this.gameObject);
+        }
+
         if (col.gameObject.name == HitBox.innerHitZoneName)
         {
             isFullyInHitZone = true;

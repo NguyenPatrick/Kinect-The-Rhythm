@@ -6,16 +6,22 @@ public class Trigger : MonoBehaviour {
 
     private bool isDetected;
     private bool isTriggered;
+    public Sprite trigged;
+    public Sprite notTriggered;
+    private SpriteRenderer spriteRender;
 
     void Start()
     {
-        isTriggered = false;
+        spriteRender = GetComponent<SpriteRenderer>();
+        spriteRender.sprite = notTriggered;
+        setNotTriggered();
     }
 
     void OnTriggerEnter2D(Collider2D col)
     {
         if (col.gameObject.name == "Hand")
         {
+
             isDetected = true;
         }
     }
@@ -28,14 +34,23 @@ public class Trigger : MonoBehaviour {
         }
     }
 
+
+    public void setTriggered()
+    {
+        spriteRender.sprite = trigged;
+        isTriggered = true;
+    }
+
+    public void setNotTriggered()
+    {
+        spriteRender.sprite = notTriggered;
+        isTriggered = false;
+    }
+
     public bool getIsDetected(){
         return this.isDetected;
     }
 
-    public void setIsTriggered(bool val)
-    {
-        this.isTriggered = val;
-    }
 
     public bool getIsTriggered()
     {

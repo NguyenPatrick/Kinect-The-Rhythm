@@ -6,10 +6,15 @@ public class Charge : MonoBehaviour
 {
     private bool isCharged;
     private bool isDetected;
+    public Sprite charged;
+    public Sprite notCharged;
+    private SpriteRenderer spriteRender;
 
     private void Start()
     {
-        isCharged = false;
+        spriteRender = GetComponent<SpriteRenderer>();
+        spriteRender.sprite = charged;
+        setCharged();
     }
 
     void OnTriggerEnter2D(Collider2D col)
@@ -27,14 +32,19 @@ public class Charge : MonoBehaviour
         }
     }
 
+    public void setCharged(){
+        spriteRender.sprite = charged;
+        isCharged = true;
+    }
+
+    public void setNotCharged(){
+        spriteRender.sprite = notCharged;
+        isCharged = false;
+    }
+
     public bool getIsDetected()
     {
         return this.isDetected;
-    }
-
-    public void setIsCharged(bool val)
-    {
-        this.isCharged = val;
     }
 
     public bool getIsCharged()
