@@ -6,44 +6,40 @@ using UnityEngine.UI;
 
 public class HitBox : MonoBehaviour
 {
-    public const string innerHitZoneName = "Inner";
-    public const string outerHitZoneName = "Outer";
-    private bool noteIsInner;
-    private bool noteIsOuter;
-    private GameObject hitBoxObject;
-    private Game.Hand type;
+    public const string noteName = "Note(Clone)";
+    private bool noteIsTouching;
+    private GameObject noteObject;
 
 
     // detects note collisions
     void OnTriggerEnter2D(Collider2D col)
     {
-        if(this.gameObject.name == innerHitZoneName){
-            noteIsInner = true;
-        }
-        if (this.gameObject.name == innerHitZoneName)
+        if (col.gameObject.name == noteName)
         {
-            noteIsOuter = true;
+            noteIsTouching = true;
         }
+
+        noteObject = col.gameObject;
     }
 
     // detects note exits
     void OnTriggerExit2D(Collider2D col)
     {
-        if (this.gameObject.name == innerHitZoneName)
+        if (col.gameObject.name == noteName)
         {
-            noteIsInner = false;
+            noteIsTouching = false;
         }
-        if (this.gameObject.name == outerHitZoneName)
-        {
-            noteIsOuter = false;
-        }
+
+        noteObject = null;
     }
 
-    public bool getNoteIsInner(){
-        return this.noteIsInner;
+    public GameObject getNoteObject()
+    {
+        return this.noteObject;
     }
 
-    public bool getNoteisOuter(){
-        return this.noteIsOuter;
+    public bool getNoteIsTouching(){
+        return this.noteIsTouching;
     }
+
 }

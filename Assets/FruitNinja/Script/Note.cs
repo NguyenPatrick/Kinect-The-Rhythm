@@ -48,6 +48,7 @@ public class Note : MonoBehaviour
             Destroy(this.gameObject);
         }
 
+        /*
         if (col.gameObject.name == HitBox.innerHitZoneName)
         {
             isFullyInHitZone = true;
@@ -56,6 +57,7 @@ public class Note : MonoBehaviour
         {
             isPartiallyInHitZone = true;
         }
+        */
 
     }
 
@@ -63,7 +65,7 @@ public class Note : MonoBehaviour
     // and make the user lose their combo
     void OnTriggerExit2D(Collider2D col)
     {
-
+        /*
         if(col.gameObject.name == HitBox.innerHitZoneName)
         {
             isFullyInHitZone = false;
@@ -71,6 +73,7 @@ public class Note : MonoBehaviour
         if(col.gameObject.name == HitBox.outerHitZoneName){
             isPartiallyInHitZone = false;
         }
+        */
     }
 
     public GameObject getNoteObject(){
