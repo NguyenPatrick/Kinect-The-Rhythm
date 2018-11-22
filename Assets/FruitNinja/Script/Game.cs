@@ -4,6 +4,7 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
+// change scale based on difficulty
 
 public class Game : MonoBehaviour {
 
@@ -12,6 +13,9 @@ public class Game : MonoBehaviour {
 
     // score tracking
     public static int score;
+    public static int combo;
+    public static bool validCombo;
+
     private int totalNumberOfNotes;
     private int numberOfNotesHit;
     public Text scoreText;
@@ -19,20 +23,20 @@ public class Game : MonoBehaviour {
     public Text comboText;
 
     // prefabs
-    public GameObject notePrefab; // scripted note object
-    public GameObject hitBoxPrefab; // scripted hitbox object
-    public GameObject triggerPrefab; // scripted control
-    public GameObject chargePrefab; // scripted trigger
+    public GameObject notePrefab;
+    public GameObject hitBoxPrefab; 
+    public GameObject triggerPrefab;
+    public GameObject chargePrefab;
     public GameObject innerHitBoxPrefab;
     public GameObject outerHitBoxPrefab;
+    public GameObject deletePrefab;
 
-    // for pausing
-    public static Queue<Note> noteQueue = new Queue<Note>();
-    public static Queue<Note> pauseQueue = new Queue<Note>();
-    
+    // hand controllers
     public GameObject leftHand;
+    public GameObject centerHand;
     public GameObject rightHand;
 
+    // virtual gameobjects controllers
     HitBox innerLeftHitBox;
     HitBox innerCenterHitBox;
     HitBox innerRightHitBox;
@@ -40,23 +44,24 @@ public class Game : MonoBehaviour {
     HitBox outerCenterHitBox;
     HitBox outerRightHitBox;
 
-
-    Trigger centerTrigger;
     Trigger leftTrigger;
+    Trigger centerTrigger;
     Trigger rightTrigger;
+
     Charge leftCharge;
     Charge rightCharge;
 
-
     // apex points for the hit boxes, will be dependant on user
     private Vector2 hitBoxCoordinate = new Vector2(6f, 1.5f);
-    // y coordinates of locations relative to hitboxes
     private const float spawnFactor = 10f;
     private const float triggerFactor = 5f; 
-    private const float chargeFactor = 12f; 
+    private const float chargeFactor = 12f;
+    private const float deleteFactor = 2.75f;
+    private const float handFactor = 7f;
+    private const float distanceBetweenHands = 1f;
 
     public Vector2[] spawnPositions; // possible spawn positions of the notes
-    private float waitTime = 2f;
+    private float waitTime = 2f; // cooldown for notes
     private float speed = -3f; // temp value
 
     private bool isPaused;
@@ -64,7 +69,7 @@ public class Game : MonoBehaviour {
     // 0 lives
     // 1 timed
     private int gameMode; // easy, intermidiate, advanced
-    private bool trigger;
+    private bool enableSpawn;
 
     public enum Hand { Left, Center, Right };
 
@@ -79,38 +84,46 @@ public class Game : MonoBehaviour {
         spawnPositions[2] = new Vector2(hitBoxCoordinate.x, hitBoxCoordinate.y + spawnFactor);
 
         // generates the hitboxes
-        innerLeftHitBox = createGameObject(-hitBoxCoordinate.x, hitBoxCoordinate.y, innerHitBoxPrefab).GetComponent<HitBox>();
-        innerCenterHitBox = createGameObject(0, hitBoxCoordinate.y, innerHitBoxPrefab).GetComponent<HitBox>();
-        innerRightHitBox = createGameObject(hitBoxCoordinate.x, hitBoxCoordinate.y, innerHitBoxPrefab).GetComponent<HitBox>();
-        outerLeftHitBox = createGameObject(-hitBoxCoordinate.x, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
-        outerCenterHitBox = createGameObject(0, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
-        outerRightHitBox = createGameObject(hitBoxCoordinate.x, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
+        innerLeftHitBox = createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y, innerHitBoxPrefab).GetComponent<HitBox>();
+        innerCenterHitBox = createGameComponent(0, hitBoxCoordinate.y, innerHitBoxPrefab).GetComponent<HitBox>();
+        innerRightHitBox = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y, innerHitBoxPrefab).GetComponent<HitBox>();
+        outerLeftHitBox = createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
+        outerCenterHitBox = createGameComponent(0, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
+        outerRightHitBox = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
 
         // generates the controls
-        centerTrigger = createGameObject(0, hitBoxCoordinate.y - triggerFactor, triggerPrefab).GetComponent<Trigger>();
-        leftTrigger = createGameObject(-hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor , triggerPrefab).GetComponent<Trigger>(); 
-        rightTrigger = createGameObject(hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor, triggerPrefab).GetComponent<Trigger>(); 
-        leftCharge = createGameObject(-hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>(); 
-        rightCharge = createGameObject(hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>(); 
+        centerTrigger = createGameComponent(0, hitBoxCoordinate.y - triggerFactor, triggerPrefab).GetComponent<Trigger>();
+        leftTrigger= createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor , triggerPrefab).GetComponent<Trigger>(); 
+        rightTrigger = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor, triggerPrefab).GetComponent<Trigger>(); 
+        leftCharge = createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>(); 
+        rightCharge = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>();
+        createGameComponent(0, hitBoxCoordinate.y - deleteFactor, deletePrefab);
+        createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y - deleteFactor, deletePrefab);
+        createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y - deleteFactor, deletePrefab);
 
-        //leftHand.transform.position = new Vector2(-hitBoxCoordinate.x, -6f);
-        //rightHand.transform.position = new Vector2(hitBoxCoordinate.x, -6f);
+        leftHand.transform.position = new Vector2(-hitBoxCoordinate.x, -handFactor);
+        centerHand.transform.position = new Vector2(0, -handFactor);
+        rightHand.transform.position = new Vector2(hitBoxCoordinate.x, -handFactor);
 
-        trigger = true;
+        enableSpawn = true;
     }
 
 
     public IEnumerator noteTimer()
     {
-        trigger = false;
+        enableSpawn = false;
         yield return new WaitForSeconds(waitTime);
-        trigger = true;
+
+        if(isPaused == true){
+            StartCoroutine(noteTimer());
+        } else{
+            enableSpawn = true;
+        }
     }
 
 
     void Update()
     {
-
 
         // if (trigger.isPressed && trigger.isEnabled)
         // if (inner detects fruit and outer doesnt --> function)
@@ -152,42 +165,93 @@ public class Game : MonoBehaviour {
 
        
         */
+        float leftHandDifference = leftHand.transform.position.y - rightHand.transform.position.y;
+        float rightHandDifference = rightHand.transform.position.y - leftHand.transform.position.y;
+        float centerY = (leftHand.transform.position.y + rightHand.transform.position.y) / 2;
+        centerHand.transform.position = new Vector2(0, centerY);
 
-
-        if (isPaused == false)
+        if ((leftHandDifference >= 0 && leftHandDifference <= distanceBetweenHands)
+            || (leftHandDifference >= 0 && leftHandDifference <= distanceBetweenHands))
         {
-            if (trigger == true)
-            {
-                createNote();
-                StartCoroutine(noteTimer());
-            }
-            else
-            {
-
-            }
-        }
-
-        /*
-        if (note.isPartiallyInHitZone == false && note.isFullyInHitZone == true)
-        {
-            // full points
-            Debug.Log("FULL");
-            score = score + 100;
-            Destroy(note.gameObject);
-        }
-        else if (note.isPartiallyInHitZone == true && note.isFullyInHitZone == true)
-        {
-            // partial points
-            Debug.Log("PARTIAL");
-            score = score + 50;
-            Destroy(note.gameObject);
+            centerHand.GetComponent<SpriteRenderer>().enabled = true;
+            leftTrigger.GetComponent<SpriteRenderer>().enabled = false;
+            rightTrigger.GetComponent<SpriteRenderer>().enabled = false;
         }
         else
         {
-            pauseQueue.Enqueue(note);
+            centerHand.GetComponent<SpriteRenderer>().enabled = false;
+            leftTrigger.GetComponent<SpriteRenderer>().enabled = true;
+            rightTrigger.GetComponent<SpriteRenderer>().enabled = true;
         }
-        */
 
+
+        if (enableSpawn == true)
+        {
+            createNote();
+            StartCoroutine(noteTimer());
+        }
+
+
+        // trigger is clicked
+        if (rightTrigger.getIsDetected() && leftTrigger.getIsDetected())
+        {
+            // only valid if trigger is charged
+            if (rightCharge.getIsCharged() && leftCharge.getIsCharged())
+            {
+                rightCharge.setNotCharged();
+                rightTrigger.setTriggered();
+                leftCharge.setNotCharged();
+                leftTrigger.setTriggered();
+                Debug.Log("yay");
+            }
+        }
+        else{
+
+            if (rightTrigger.getIsDetected())
+            {
+                // only valid if trigger is charged
+                if (rightCharge.getIsCharged())
+                {
+                    rightCharge.setNotCharged();
+                    rightTrigger.setTriggered();
+
+                    if (innerRightHitBox.getNoteIsTouching() && !outerRightHitBox.getNoteIsTouching())
+                    {
+                        Debug.Log("FULL");
+                        Destroy(innerRightHitBox.getNoteObject());
+                    }
+                    else if (innerRightHitBox.getNoteIsTouching() && outerRightHitBox.getNoteIsTouching())
+                    {
+                        Debug.Log("PARTIAL");
+                        Destroy(outerRightHitBox.getNoteObject());
+                    }
+                }
+            }
+
+            if (leftTrigger.getIsDetected())
+            {
+                // only valid if trigger is charged
+                if (leftCharge.getIsCharged())
+                {
+                    leftCharge.setNotCharged();
+                    leftTrigger.setTriggered();
+
+                    if (innerLeftHitBox.getNoteIsTouching() && !outerLeftHitBox.getNoteIsTouching())
+                    {
+                        Debug.Log("FULL");
+                        Destroy(innerLeftHitBox.getNoteObject());
+                    }
+                    else if (innerLeftHitBox.getNoteIsTouching() && outerLeftHitBox.getNoteIsTouching())
+                    {
+                        Debug.Log("PARTIAL");
+                        Destroy(outerRightHitBox.getNoteObject());
+                    }
+                }
+            }
+        }
+
+
+        /*
         // trigger is clicked
         if (rightTrigger.getIsDetected())
         {
@@ -197,7 +261,8 @@ public class Game : MonoBehaviour {
                 rightCharge.setNotCharged();
                 rightTrigger.setTriggered();
 
-                if (innerRightHitBox.getNoteIsTouching() && !outerRightHitBox.getNoteIsTouching()){
+                if (innerRightHitBox.getNoteIsTouching() && !outerRightHitBox.getNoteIsTouching())
+                {
                     Debug.Log("FULL");
                     Destroy(innerRightHitBox.getNoteObject());
                 }
@@ -206,112 +271,64 @@ public class Game : MonoBehaviour {
                     Debug.Log("PARTIAL");
                     Destroy(outerRightHitBox.getNoteObject());
                 }
-
             }
         }
-
+        */
         // if uncharged, charge again
         if (rightCharge.getIsDetected() == true)
         {
             rightCharge.setCharged();
             rightTrigger.setNotTriggered();
-
         }
 
-        if (leftTrigger.getIsDetected())
+        if (leftCharge.getIsDetected() == true)
         {
+            leftCharge.setCharged();
+            leftTrigger.setNotTriggered();
 
         }
 
     }
 
-    private GameObject createGameObject(float x, float y, GameObject prefab){
+    private GameObject createGameComponent(float x, float y, GameObject prefab){
         Vector2 newPosition = new Vector2(x, y);
         GameObject newPrefab = (GameObject)Instantiate(prefab, newPosition, prefab.transform.rotation);
         return newPrefab;
     }
 
 
-    private void createNote()
-    {
+    private void createNote(){
         int hitBoxCoordinatePosition = Random.Range(0, spawnPositions.Length);
         Vector2 tempSpawnCoordinate = spawnPositions[hitBoxCoordinatePosition];
 
         Vector2 newNotePosition = new Vector2(tempSpawnCoordinate.x, tempSpawnCoordinate.y); // based on a random spawn point
         GameObject newNoteObject = (GameObject)Instantiate(notePrefab, newNotePosition, notePrefab.transform.rotation);
-        Note newNote = new Note(newNoteObject, hitBoxCoordinatePosition);
-        noteQueue.Enqueue(newNote);
 
         newNoteObject.GetComponent<Rigidbody2D>().velocity = new Vector2(0, speed);
     }
 
-    public static void removeNote(){
-
-        Note note = null;
-
-        if(pauseQueue.Count > 0){
-            note = pauseQueue.Dequeue().getNoteObject().GetComponent<Note>();
-        }
-        else{
-            note = noteQueue.Dequeue().getNoteObject().GetComponent<Note>();
-        }
-
-
-
-
-        if (note.isPartiallyInHitZone == false && note.isFullyInHitZone == true)
-        {
-            // full points
-            Debug.Log("FULL");
-            score = score + 100;
-            Destroy(note.gameObject);
-        }
-        else if (note.isPartiallyInHitZone == true && note.isFullyInHitZone == true)
-        {
-            // partial points
-            Debug.Log("PARTIAL");
-            score = score + 50;
-            Destroy(note.gameObject);
-        }
-        else
-        {
-            pauseQueue.Enqueue(note);
-        }
-
-       
-
-    }
-
-    public static void deQueue(){
-        if(pauseQueue.Count > 0){
-            pauseQueue.Dequeue();
-        }
-        else{
-            noteQueue.Dequeue();
-        }
-    }
-
+   
     public void pauseGame(){
 
         isPaused = true;
+        enableSpawn = false;
 
-        while(noteQueue.Count > 0){
-            Note n = noteQueue.Dequeue();
-            n.getNoteObject().GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
-            pauseQueue.Enqueue(n);
+        foreach (GameObject note in GameObject.FindObjectsOfType(typeof(GameObject)))
+        {
+            if (note.name == "Note(Clone)")
+                note.GetComponent<Note>().GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
         }
     }
 
     public void resumeGame(){
 
         isPaused = false;
+        noteTimer();
 
-        while (pauseQueue.Count > 0){
-            Note n = pauseQueue.Dequeue();
-            n.getNoteObject().GetComponent<Rigidbody2D>().velocity = new Vector2(0, speed);
-            noteQueue.Enqueue(n);
+        foreach (GameObject note in GameObject.FindObjectsOfType(typeof(GameObject)))
+        {
+            if (note.name == "Note(Clone)")
+                note.GetComponent<Note>().GetComponent<Rigidbody2D>().velocity = new Vector2(0, speed);
         }
-
-        StartCoroutine(noteTimer());
     }
 }

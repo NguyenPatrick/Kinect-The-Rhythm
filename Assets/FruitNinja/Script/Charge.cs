@@ -9,6 +9,7 @@ public class Charge : MonoBehaviour
     public Sprite charged;
     public Sprite notCharged;
     private SpriteRenderer spriteRender;
+    public const string chargeName = "Charge(Clone)";
 
     private void Start()
     {

@@ -9,22 +9,15 @@ using UnityEngine.UI;
 public class Note : MonoBehaviour
 {
 
-    public bool isPartiallyInHitZone; // some of the note is in the hit zone, half points, no combo
-    public bool isFullyInHitZone; // all the note is in the hit zone, full points, combo
-    public bool isHitByHand; // if the hand is also in contact with the fruit
+    public bool isPartiallyInHitZone;
+    public bool isFullyInHitZone;
 
-    private int spawnPosition; // spawn position of note
-    private GameObject noteObject; // prefab of the note
-    public const string prefabName = "Note(Clone)";
-
-    public Note(GameObject noteObject, int spawnPosition)
-    {
-        this.noteObject = noteObject;
-        this.spawnPosition = spawnPosition;
-    }
+    public const string noteName = "Note(Clone)";
+    private SpriteRenderer spriteRender;
 
     void Start()
     {
+        spriteRender = GetComponent<SpriteRenderer>();
         isPartiallyInHitZone = false;
         isFullyInHitZone = false;
     }
@@ -41,47 +34,35 @@ public class Note : MonoBehaviour
     // box hit zone
     void OnTriggerEnter2D(Collider2D col)
     {
-
-        if (col.gameObject.name == "Trigger(Clone)")
-        {
-            Game.deQueue();
-            Destroy(this.gameObject);
-        }
-
-        /*
-        if (col.gameObject.name == HitBox.innerHitZoneName)
+        if (col.gameObject.name == HitBox.innerHitBoxName)
         {
             isFullyInHitZone = true;
         }
-        if (col.gameObject.name == HitBox.outerHitZoneName)
+        if (col.gameObject.name == HitBox.outerHitBoxName)
         {
             isPartiallyInHitZone = true;
         }
-        */
+    
+        if (col.gameObject.name == HitBox.deleteName)
+        {
+            Destroy(this.gameObject);
+        }
 
+      
     }
 
     // if the note exits the hitZone, destroy the note and change the animation to red 
     // and make the user lose their combo
     void OnTriggerExit2D(Collider2D col)
     {
-        /*
-        if(col.gameObject.name == HitBox.innerHitZoneName)
+
+        if(col.gameObject.name == HitBox.innerHitBoxName)
         {
             isFullyInHitZone = false;
         }
-        if(col.gameObject.name == HitBox.outerHitZoneName){
+        if (col.gameObject.name == HitBox.outerHitBoxName)
+        {
             isPartiallyInHitZone = false;
         }
-        */
-    }
-
-    public GameObject getNoteObject(){
-        return this.noteObject;
-    }
-
-    public int getSpawnPosition()
-    {
-        return this.spawnPosition;
     }
 }
