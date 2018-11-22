@@ -9,6 +9,7 @@ public class Trigger : MonoBehaviour {
     public Sprite trigged;
     public Sprite notTriggered;
     private SpriteRenderer spriteRender;
+    public const string triggerName = "Trigger(Clone)";
 
     void Start()
     {
@@ -21,7 +22,6 @@ public class Trigger : MonoBehaviour {
     {
         if (col.gameObject.name == "Hand")
         {
-
             isDetected = true;
         }
     }
