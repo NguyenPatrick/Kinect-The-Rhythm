@@ -49,16 +49,17 @@ public class Game : MonoBehaviour {
     Trigger rightTrigger;
 
     Charge leftCharge;
+    Charge centerCharge;
     Charge rightCharge;
 
     // apex points for the hit boxes, will be dependant on user
     private Vector2 hitBoxCoordinate = new Vector2(6f, 1.5f);
     private const float spawnFactor = 10f;
-    private const float triggerFactor = 5f; 
+    private const float triggerFactor = 4f; 
     private const float chargeFactor = 12f;
     private const float deleteFactor = 2.75f;
     private const float handFactor = 7f;
-    private const float distanceBetweenHands = 1f;
+    private const float maxHandDistance = 0.75f;
 
     public Vector2[] spawnPositions; // possible spawn positions of the notes
     private float waitTime = 2f; // cooldown for notes
@@ -92,13 +93,16 @@ public class Game : MonoBehaviour {
         outerRightHitBox = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
 
         // generates the controls
+        leftTrigger= createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor , triggerPrefab).GetComponent<Trigger>();
         centerTrigger = createGameComponent(0, hitBoxCoordinate.y - triggerFactor, triggerPrefab).GetComponent<Trigger>();
-        leftTrigger= createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor , triggerPrefab).GetComponent<Trigger>(); 
         rightTrigger = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor, triggerPrefab).GetComponent<Trigger>(); 
-        leftCharge = createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>(); 
+
+        leftCharge = createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>();
+        centerCharge = createGameComponent(0, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>();
         rightCharge = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>();
-        createGameComponent(0, hitBoxCoordinate.y - deleteFactor, deletePrefab);
+
         createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y - deleteFactor, deletePrefab);
+        createGameComponent(0, hitBoxCoordinate.y - deleteFactor, deletePrefab);
         createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y - deleteFactor, deletePrefab);
 
         leftHand.transform.position = new Vector2(-hitBoxCoordinate.x, -handFactor);
@@ -162,16 +166,14 @@ public class Game : MonoBehaviour {
                 leftHand.transform.position = new Vector3(leftHand.transform.position.x, lHandPosition.y, leftHand.transform.position.z);
             }
         }
-
-       
         */
-        float leftHandDifference = leftHand.transform.position.y - rightHand.transform.position.y;
-        float rightHandDifference = rightHand.transform.position.y - leftHand.transform.position.y;
+
+
+        float handDifference = Mathf.Abs(leftHand.transform.position.y - rightHand.transform.position.y);
         float centerY = (leftHand.transform.position.y + rightHand.transform.position.y) / 2;
         centerHand.transform.position = new Vector2(0, centerY);
 
-        if ((leftHandDifference >= 0 && leftHandDifference <= distanceBetweenHands)
-            || (leftHandDifference >= 0 && leftHandDifference <= distanceBetweenHands))
+        if (handDifference >= 0 && handDifference <= maxHandDistance)
         {
             centerHand.GetComponent<SpriteRenderer>().enabled = true;
             leftTrigger.GetComponent<SpriteRenderer>().enabled = false;
@@ -192,63 +194,71 @@ public class Game : MonoBehaviour {
         }
 
 
-        // trigger is clicked
-        if (rightTrigger.getIsDetected() && leftTrigger.getIsDetected())
+
+        if (rightTrigger.getIsDetected())
         {
             // only valid if trigger is charged
-            if (rightCharge.getIsCharged() && leftCharge.getIsCharged())
+            if (rightCharge.getIsCharged())
             {
                 rightCharge.setNotCharged();
                 rightTrigger.setTriggered();
+
+                if (innerRightHitBox.getNoteIsTouching() && !outerRightHitBox.getNoteIsTouching())
+                {
+                    Debug.Log("FULL");
+                    Destroy(innerRightHitBox.getNoteObject());
+                }
+                else if (innerRightHitBox.getNoteIsTouching() && outerRightHitBox.getNoteIsTouching())
+                {
+                    Debug.Log("PARTIAL");
+                    Destroy(outerRightHitBox.getNoteObject());
+                }
+            }
+        }
+
+        if (centerTrigger.getIsDetected())
+        {
+            // only valid if trigger is charged
+            if (centerCharge.getIsCharged())
+            {
+                centerCharge.setNotCharged();
+                centerTrigger.setTriggered();
+
+                if (innerCenterHitBox.getNoteIsTouching() && !outerCenterHitBox.getNoteIsTouching())
+                {
+                    Debug.Log("FULL");
+                    Destroy(innerCenterHitBox.getNoteObject());
+                }
+                else if (innerCenterHitBox.getNoteIsTouching() && outerCenterHitBox.getNoteIsTouching())
+                {
+                    Debug.Log("PARTIAL");
+                    Destroy(outerCenterHitBox.getNoteObject());
+                }
+            }
+        }
+
+
+        if (leftTrigger.getIsDetected())
+        {
+            // only valid if trigger is charged
+            if (leftCharge.getIsCharged())
+            {
                 leftCharge.setNotCharged();
                 leftTrigger.setTriggered();
-                Debug.Log("yay");
-            }
-        }
-        else{
 
-            if (rightTrigger.getIsDetected())
-            {
-                // only valid if trigger is charged
-                if (rightCharge.getIsCharged())
+                if (innerLeftHitBox.getNoteIsTouching() && !outerLeftHitBox.getNoteIsTouching())
                 {
-                    rightCharge.setNotCharged();
-                    rightTrigger.setTriggered();
-
-                    if (innerRightHitBox.getNoteIsTouching() && !outerRightHitBox.getNoteIsTouching())
-                    {
-                        Debug.Log("FULL");
-                        Destroy(innerRightHitBox.getNoteObject());
-                    }
-                    else if (innerRightHitBox.getNoteIsTouching() && outerRightHitBox.getNoteIsTouching())
-                    {
-                        Debug.Log("PARTIAL");
-                        Destroy(outerRightHitBox.getNoteObject());
-                    }
+                    Debug.Log("FULL");
+                    Destroy(innerLeftHitBox.getNoteObject());
                 }
-            }
-
-            if (leftTrigger.getIsDetected())
-            {
-                // only valid if trigger is charged
-                if (leftCharge.getIsCharged())
+                else if (innerLeftHitBox.getNoteIsTouching() && outerLeftHitBox.getNoteIsTouching())
                 {
-                    leftCharge.setNotCharged();
-                    leftTrigger.setTriggered();
-
-                    if (innerLeftHitBox.getNoteIsTouching() && !outerLeftHitBox.getNoteIsTouching())
-                    {
-                        Debug.Log("FULL");
-                        Destroy(innerLeftHitBox.getNoteObject());
-                    }
-                    else if (innerLeftHitBox.getNoteIsTouching() && outerLeftHitBox.getNoteIsTouching())
-                    {
-                        Debug.Log("PARTIAL");
-                        Destroy(outerRightHitBox.getNoteObject());
-                    }
+                    Debug.Log("PARTIAL");
+                    Destroy(outerRightHitBox.getNoteObject());
                 }
             }
         }
+
 
 
         /*
@@ -285,6 +295,12 @@ public class Game : MonoBehaviour {
         {
             leftCharge.setCharged();
             leftTrigger.setNotTriggered();
+        }
+
+        if (centerCharge.getIsDetected() == true)
+        {
+            centerCharge.setCharged();
+            centerTrigger.setNotTriggered();
 
         }
 

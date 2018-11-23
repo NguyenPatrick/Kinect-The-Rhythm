@@ -22,7 +22,26 @@ public class Trigger : MonoBehaviour {
     {
         if (col.gameObject.name == "Hand")
         {
-            isDetected = true;
+            if (GetComponent<SpriteRenderer>().enabled == true)
+            {
+                isDetected = true;
+            }
+            else
+            {
+                isDetected = false;
+            }
+        }
+    }
+
+
+    void OnTriggerStay2D(Collider2D col)
+    {
+        if (col.gameObject.name == "Hand")
+        {
+            if (GetComponent<SpriteRenderer>().enabled == true)
+            {
+                isDetected = true;
+            }
         }
     }
 
@@ -50,7 +69,6 @@ public class Trigger : MonoBehaviour {
     public bool getIsDetected(){
         return this.isDetected;
     }
-
 
     public bool getIsTriggered()
     {

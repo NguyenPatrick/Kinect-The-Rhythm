@@ -20,7 +20,8 @@ public class Charge : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        if (col.gameObject.name == "Hand") {
+        if (col.gameObject.name == "Hand") 
+        {
             isDetected = true;
         }
     }
