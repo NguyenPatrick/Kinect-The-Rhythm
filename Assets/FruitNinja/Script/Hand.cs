@@ -7,6 +7,7 @@ public class Hand : MonoBehaviour {
 
 	void Update () {
 
+
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             GetComponent<Rigidbody2D>().velocity = new Vector2(0, 5);
@@ -25,7 +26,6 @@ public class Hand : MonoBehaviour {
         {
             GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
         }
-
     }
 }
 

@@ -10,7 +10,7 @@ public class HitBox : MonoBehaviour
     private GameObject noteObject;
     public const string innerHitBoxName = "Inner(Clone)";
     public const string outerHitBoxName = "Outer(Clone)";
-    public const string deleteName = "Delete(Clone)";
+    public const string boundaryName = "Boundary(Clone)";
 
 
     // detects note collisions

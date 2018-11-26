@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LeftHanf : MonoBehaviour {
+public class LeftHand : MonoBehaviour {
 
 
 	
