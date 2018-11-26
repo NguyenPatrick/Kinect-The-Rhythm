@@ -6,12 +6,22 @@ using UnityEngine.UI;
 
 public class HitBox : MonoBehaviour
 {
-    private bool noteIsTouching;
+    public GameObject ringPrefab;
+    private GameObject ringObject;
     private GameObject noteObject;
-    public const string innerHitBoxName = "Inner(Clone)";
-    public const string outerHitBoxName = "Outer(Clone)";
+    private bool noteIsTouching;
+    public const string innerHitBoxName = "HitBoxInner(Clone)";
+    public const string outerHitBoxName = "HitBoxOuter(Clone)";
     public const string boundaryName = "Boundary(Clone)";
 
+    void Start()
+    {
+        if(this.gameObject.name == innerHitBoxName)
+        {
+            Vector2 position = this.GetComponent<Transform>().position;
+            this.ringObject = (GameObject)Instantiate(ringPrefab, position, ringPrefab.transform.rotation);
+        }
+    }
 
     // detects note collisions
     void OnTriggerEnter2D(Collider2D col)
@@ -38,6 +48,11 @@ public class HitBox : MonoBehaviour
     public GameObject getNoteObject()
     {
         return this.noteObject;
+    }
+
+    public GameObject getRingObject()
+    {
+        return this.ringObject;
     }
 
     public bool getNoteIsTouching(){

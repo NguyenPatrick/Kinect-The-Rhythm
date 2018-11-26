@@ -12,7 +12,7 @@ public class Game : MonoBehaviour {
     private KinectManager kinectManager;
 
     // score tracking
-    public static int score;
+    public static int score = 55555;
     public static int combo;
     public static bool validCombo;
 
@@ -52,7 +52,7 @@ public class Game : MonoBehaviour {
     Charge rightCharge;
 
     // apex points for the hit boxes, will be dependant on user
-    private Vector2 hitBoxCoordinate = new Vector2(6f, 1.5f);
+    private Vector2 hitBoxCoordinate = new Vector2(5f, 1.5f);
     private const float spawnFactor = 10f;
     private const float triggerFactor = 5f; 
     private const float chargeFactor = 12f;
@@ -180,7 +180,6 @@ public class Game : MonoBehaviour {
             StartCoroutine(noteTimer());
         }
 
-        // on trigger, can't move up anymore
 
         float handDifference = Mathf.Abs(leftHand.transform.position.y - rightHand.transform.position.y);
         float centerY = (leftHand.transform.position.y + rightHand.transform.position.y) / 2;
@@ -202,12 +201,11 @@ public class Game : MonoBehaviour {
             rightTrigger.GetComponent<SpriteRenderer>().enabled = true;
         }
     
-
         controlGameComponent(leftTrigger, leftCharge, innerLeftHitBox, outerLeftHitBox);
         controlGameComponent(centerTrigger, centerCharge, innerCenterHitBox, outerCenterHitBox);
         controlGameComponent(rightTrigger, rightCharge, innerRightHitBox, outerRightHitBox);
-
     }
+
 
     private bool validateHandHeight(GameObject hand)
     {
@@ -218,6 +216,7 @@ public class Game : MonoBehaviour {
 
         return true;
     }
+
 
     private void createNote()
     {
