@@ -26,6 +26,7 @@ public class Game : MonoBehaviour {
     public GameObject notePrefab;
     public GameObject innerHitBoxPrefab;
     public GameObject outerHitBoxPrefab;
+    public GameObject ringPrefab;
     public GameObject triggerPrefab;
     public GameObject chargePrefab;
     public GameObject deletePrefab;
@@ -207,17 +208,6 @@ public class Game : MonoBehaviour {
     }
 
 
-    private bool validateHandHeight(GameObject hand)
-    {
-        if(hand.transform.position.y >= maxHandHeight || hand.transform.position.y <= minHandHeight)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-
     private void createNote()
     {
         int hitBoxCoordinatePosition = Random.Range(0, spawnPositions.Length);
@@ -240,6 +230,9 @@ public class Game : MonoBehaviour {
 
     private void controlGameComponent(Trigger trigger, Charge charge, HitBox innerHitBox, HitBox outerHitBox)
     {
+
+        Vector2 position = innerHitBox.GetComponent<Transform>().position;
+
         if (trigger.getIsDetected())
         {
             // only valid if trigger is charged
@@ -253,8 +246,10 @@ public class Game : MonoBehaviour {
                     Debug.Log("FULL");
                     score = score + 100;
                     Destroy(innerHitBox.getNoteObject());
+                    Ring ringObject = ((GameObject)Instantiate(ringPrefab, position, ringPrefab.transform.rotation)).GetComponent<Ring>();
+                    ringObject.createGreenRing();
 
-                    if(validCombo == true)
+                    if (validCombo == true)
                     {
                         combo = combo + 1;
                     }
@@ -264,11 +259,18 @@ public class Game : MonoBehaviour {
                     Debug.Log("PARTIAL");
                     score = score + 50;
                     Destroy(outerHitBox.getNoteObject());
+                    Ring ringObject = ((GameObject)Instantiate(ringPrefab, position, ringPrefab.transform.rotation)).GetComponent<Ring>();
+                    ringObject.createYellowRing();
 
                     if (validCombo == true)
                     {
                         combo = combo + 1;
                     }
+                }
+                else
+                {
+                    Ring ringObject = ((GameObject)Instantiate(ringPrefab, position, ringPrefab.transform.rotation)).GetComponent<Ring>();
+                    ringObject.createRedRing();
                 }
             }
         }
@@ -278,7 +280,6 @@ public class Game : MonoBehaviour {
             charge.setCharged();
             trigger.setNotTriggered();
         }
-
 
         if (validCombo == false)
         {

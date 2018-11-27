@@ -8,7 +8,8 @@ using UnityEngine.UI;
 */
 public class Note : MonoBehaviour
 {
-
+    public GameObject ringPrefab;
+    private GameObject innerHitBox;
     public bool isPartiallyInHitZone;
     public bool isFullyInHitZone;
 
@@ -22,32 +23,32 @@ public class Note : MonoBehaviour
         isFullyInHitZone = false;
     }
 
-
-
-    // if the note is in the hit zone then isInHitZone is set to true
-    // accuaracy is defined as if the user hits the the object when it is completely inside the 
-    // box hit zone
+    // used to determine if a note is fully in the inner hitZone
     void OnTriggerEnter2D(Collider2D col)
     {
         if (col.gameObject.name == HitBox.innerHitBoxName)
         {
+            innerHitBox = col.gameObject;
             isFullyInHitZone = true;
         }
         if (col.gameObject.name == HitBox.outerHitBoxName)
         {
             isPartiallyInHitZone = true;
         }
-    
+
+        // when the boundary is hit, the note is destroyed and a red error ring is generated
         if (col.gameObject.name == HitBox.boundaryName)
         {
-            Destroy(this.gameObject);
             Game.validCombo = false;
+            Destroy(this.gameObject);
+            Vector2 position = innerHitBox.GetComponent<Transform>().position;
+            Ring ringObject = ((GameObject)Instantiate(ringPrefab, position, ringPrefab.transform.rotation)).GetComponent<Ring>();
+            ringObject.createRedRing();
         }
     }
 
     void OnTriggerExit2D(Collider2D col)
     {
-
         if(col.gameObject.name == HitBox.innerHitBoxName)
         {
             isFullyInHitZone = false;
