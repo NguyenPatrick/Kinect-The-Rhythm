@@ -8,6 +8,15 @@ using UnityEngine.UI;
 
 public class Game : MonoBehaviour {
 
+    // profile based variables
+    public static int numberOfProfiles; // persistent variable
+    public static string firstName;
+    public static string lastName;
+    public static string leftOrRightHand;
+    public static string pictureFileLocation; // set default profile picture
+    public static bool isDeleted;
+
+
 
     private KinectManager kinectManager;
 
@@ -24,8 +33,8 @@ public class Game : MonoBehaviour {
     private int totalNumberOfNotes;
     private int numberOfNotesHit;
     public Text scoreText;
-    public Text difficultyText;
     public Text comboText;
+    public Text timeText;
 
     // prefabs
     public GameObject notePrefab;
@@ -70,10 +79,13 @@ public class Game : MonoBehaviour {
     private float waitTime = 2f; // cooldown for notes
     private float speed = -3f; // temp value
 
-    private bool isPaused;
-    private bool enableSpawn;
+    private string gameMode;
+    private string difficulty;
+    private float gameTime = 60;
 
-    public enum Hand { Left, Center, Right };
+
+    private bool isPaused;
+
 
     void Start () {
 
@@ -105,20 +117,38 @@ public class Game : MonoBehaviour {
         leftHand.transform.position = new Vector2(-hitBoxCoordinate.x - controlFactor, -handFactor);
         rightHand.transform.position = new Vector2(hitBoxCoordinate.x + controlFactor, -handFactor);
 
-        enableSpawn = true;
         validCombo = true;
+        isPaused = false;
+
+        StartCoroutine(countDown());
+        StartCoroutine(noteTimer());
+
     }
 
 
     public IEnumerator noteTimer()
     {
-        enableSpawn = false;
-        yield return new WaitForSeconds(waitTime);
+        if (isPaused == false)
+        {
+            createNote();
+            yield return new WaitForSeconds(waitTime);
+        }
 
-        if(isPaused == true){
-            StartCoroutine(noteTimer());
-        } else{
-            enableSpawn = true;
+        StartCoroutine(noteTimer());
+    }
+
+    public IEnumerator countDown()
+    {
+        yield return new WaitForSeconds(1f);
+
+        if (gameTime > 0)
+        {
+            gameTime = gameTime - 1;
+            StartCoroutine(countDown());
+        }
+        else
+        {
+            Debug.Log("Finished Game");
         }
     }
 
@@ -165,13 +195,7 @@ public class Game : MonoBehaviour {
 
         scoreText.text = "Score: " + score;
         comboText.text = "Combo: " + combo;
-
-
-        if (enableSpawn == true)
-        {
-            createNote();
-            StartCoroutine(noteTimer());
-        }
+        timeText.text = "Time: " + gameTime;
 
         controlGameComponent(leftTrigger, leftCharge, innerLeftHitBox, outerLeftHitBox);
         controlGameComponent(rightTrigger, rightCharge, innerRightHitBox, outerRightHitBox);
@@ -267,7 +291,7 @@ public class Game : MonoBehaviour {
     public void pauseGame()
     {
         isPaused = true;
-        enableSpawn = false;
+        Debug.Log("pause");
 
         foreach (GameObject note in GameObject.FindObjectsOfType(typeof(GameObject)))
         {
@@ -281,7 +305,7 @@ public class Game : MonoBehaviour {
     public void resumeGame(){
 
         isPaused = false;
-        noteTimer();
+        Debug.Log("resume");
 
         foreach (GameObject note in GameObject.FindObjectsOfType(typeof(GameObject)))
         {
