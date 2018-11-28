@@ -8,8 +8,8 @@ using UnityEngine.EventSystems;
 using SFB;
 
 [RequireComponent(typeof(Button))]
-public class CanvasSampleOpenFileText : MonoBehaviour, IPointerDownHandler {
-    public Text output;
+public class CanvasSampleOpenFileImage : MonoBehaviour, IPointerDownHandler {
+    public RawImage output;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
     //
@@ -19,7 +19,7 @@ public class CanvasSampleOpenFileText : MonoBehaviour, IPointerDownHandler {
     private static extern void UploadFile(string gameObjectName, string methodName, string filter, bool multiple);
 
     public void OnPointerDown(PointerEventData eventData) {
-        UploadFile(gameObject.name, "OnFileUpload", ".txt", false);
+        UploadFile(gameObject.name, "OnFileUpload", ".png, .jpg", false);
     }
 
     // Called from browser
@@ -38,7 +38,10 @@ public class CanvasSampleOpenFileText : MonoBehaviour, IPointerDownHandler {
     }
 
     private void OnClick() {
-        var paths = StandaloneFileBrowser.OpenFilePanel("Title", "", "txt", false);
+        var extensions = new[] {
+           new ExtensionFilter("Image Files", "png", "jpg", "jpeg"),
+           };
+        var paths = StandaloneFileBrowser.OpenFilePanel("Title", "", extensions, false);
         if (paths.Length > 0) {
             StartCoroutine(OutputRoutine(new System.Uri(paths[0]).AbsoluteUri));
         }
@@ -48,6 +51,6 @@ public class CanvasSampleOpenFileText : MonoBehaviour, IPointerDownHandler {
     private IEnumerator OutputRoutine(string url) {
         var loader = new WWW(url);
         yield return loader;
-        output.text = loader.text;
+        output.texture = loader.texture;
     }
 }
