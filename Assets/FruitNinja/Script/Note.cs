@@ -40,22 +40,13 @@ public class Note : MonoBehaviour
         if (col.gameObject.name == HitBox.boundaryName)
         {
             Game.validCombo = false;
+            isFullyInHitZone = false;
+            isPartiallyInHitZone = false;
+
             Destroy(this.gameObject);
             Vector2 position = innerHitBox.GetComponent<Transform>().position;
             Ring ringObject = ((GameObject)Instantiate(ringPrefab, position, ringPrefab.transform.rotation)).GetComponent<Ring>();
             ringObject.createRedRing();
-        }
-    }
-
-    void OnTriggerExit2D(Collider2D col)
-    {
-        if(col.gameObject.name == HitBox.innerHitBoxName)
-        {
-            isFullyInHitZone = false;
-        }
-        if (col.gameObject.name == HitBox.outerHitBoxName)
-        {
-            isPartiallyInHitZone = false;
         }
     }
 }

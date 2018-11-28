@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class HitBox : MonoBehaviour
 {
-    public GameObject ringPrefab;
     private GameObject noteObject;
     private bool noteIsTouching;
     public const string innerHitBoxName = "Inner(Clone)";
@@ -20,20 +19,24 @@ public class HitBox : MonoBehaviour
         if (col.gameObject.name == Note.noteName)
         {
             noteIsTouching = true;
+            noteObject = col.gameObject;
         }
-
-        noteObject = col.gameObject;
     }
 
-    // detects note exits
     void OnTriggerExit2D(Collider2D col)
     {
         if (col.gameObject.name == Note.noteName)
         {
             noteIsTouching = false;
         }
-
-        noteObject = null;
+    }
+    
+    void Update()
+    {
+        if(noteObject == null)
+        {
+            noteIsTouching = false;
+        }
     }
 
     public GameObject getNoteObject()
@@ -41,9 +44,8 @@ public class HitBox : MonoBehaviour
         return this.noteObject;
     }
 
-
-    public bool getNoteIsTouching(){
+    public bool getNoteIsTouching()
+    {
         return this.noteIsTouching;
     }
-
 }

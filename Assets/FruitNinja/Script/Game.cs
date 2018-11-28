@@ -12,9 +12,13 @@ public class Game : MonoBehaviour {
     private KinectManager kinectManager;
 
     // score tracking
-    public static int score = 55555;
+    public static int score;
     public static int combo;
     public static bool validCombo;
+    public static int totalNotes;
+    public static int perfectNotes;
+    public static int partialNotes;
+    public static int notesMissed;
 
     private int totalNumberOfNotes;
     private int numberOfNotesHit;
@@ -53,7 +57,7 @@ public class Game : MonoBehaviour {
     Charge rightCharge;
 
     // apex points for the hit boxes, will be dependant on user
-    private Vector2 hitBoxCoordinate = new Vector2(5f, 1.5f);
+    private Vector2 hitBoxCoordinate = new Vector2(2.5f, 2f);
     private const float spawnFactor = 10f;
     private const float triggerFactor = 5f; 
     private const float chargeFactor = 12f;
@@ -81,27 +85,21 @@ public class Game : MonoBehaviour {
         kinectManager = KinectManager.Instance;
 
         // generates spawn points for the notes
-        spawnPositions = new Vector2[3];
+        spawnPositions = new Vector2[4];
         spawnPositions[0] = new Vector2(-hitBoxCoordinate.x, hitBoxCoordinate.y + spawnFactor);
-        spawnPositions[1] = new Vector2(0, hitBoxCoordinate.y + spawnFactor);
-        spawnPositions[2] = new Vector2(hitBoxCoordinate.x, hitBoxCoordinate.y + spawnFactor);
+        spawnPositions[1] = new Vector2(hitBoxCoordinate.x, hitBoxCoordinate.y + spawnFactor);
 
         // generates the hitboxes
         innerLeftHitBox = createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y, innerHitBoxPrefab).GetComponent<HitBox>();
-        innerCenterHitBox = createGameComponent(0, hitBoxCoordinate.y, innerHitBoxPrefab).GetComponent<HitBox>();
         innerRightHitBox = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y, innerHitBoxPrefab).GetComponent<HitBox>();
 
         outerLeftHitBox = createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
-        outerCenterHitBox = createGameComponent(0, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
         outerRightHitBox = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
 
         // generates the controls
-        leftTrigger= createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor , triggerPrefab).GetComponent<Trigger>();
-        centerTrigger = createGameComponent(0, hitBoxCoordinate.y - triggerFactor, triggerPrefab).GetComponent<Trigger>();
+        leftTrigger= createGameComponent(-hitBoxCoordinate.x , hitBoxCoordinate.y - triggerFactor , triggerPrefab).GetComponent<Trigger>();
         rightTrigger = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor, triggerPrefab).GetComponent<Trigger>(); 
-
         leftCharge = createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>();
-        centerCharge = createGameComponent(0, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>();
         rightCharge = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>();
 
         createGameComponent(0, hitBoxCoordinate.y - deleteFactor, deletePrefab);
@@ -110,7 +108,6 @@ public class Game : MonoBehaviour {
 
 
         leftHand.transform.position = new Vector2(-hitBoxCoordinate.x, -handFactor);
-        centerHand.transform.position = new Vector2(0, -handFactor);
         rightHand.transform.position = new Vector2(hitBoxCoordinate.x, -handFactor);
 
         enableSpawn = true;
@@ -181,42 +178,21 @@ public class Game : MonoBehaviour {
             StartCoroutine(noteTimer());
         }
 
-
-        float handDifference = Mathf.Abs(leftHand.transform.position.y - rightHand.transform.position.y);
-        float centerY = (leftHand.transform.position.y + rightHand.transform.position.y) / 2;
-        centerHand.transform.position = new Vector2(0, centerY);
-
-
-        if (handDifference >= 0 && handDifference <= maxHandDistance)
-        {
-            centerHand.GetComponent<SpriteRenderer>().enabled = true;
-            leftTrigger.GetComponent<SpriteRenderer>().enabled = false;
-            centerTrigger.GetComponent<SpriteRenderer>().enabled = true;
-            rightTrigger.GetComponent<SpriteRenderer>().enabled = false;
-        }
-        else
-        {
-            centerHand.GetComponent<SpriteRenderer>().enabled = false;
-            leftTrigger.GetComponent<SpriteRenderer>().enabled = true;
-            centerTrigger.GetComponent<SpriteRenderer>().enabled = false;
-            rightTrigger.GetComponent<SpriteRenderer>().enabled = true;
-        }
-    
         controlGameComponent(leftTrigger, leftCharge, innerLeftHitBox, outerLeftHitBox);
-        controlGameComponent(centerTrigger, centerCharge, innerCenterHitBox, outerCenterHitBox);
         controlGameComponent(rightTrigger, rightCharge, innerRightHitBox, outerRightHitBox);
     }
 
 
     private void createNote()
     {
-        int hitBoxCoordinatePosition = Random.Range(0, spawnPositions.Length);
+        int hitBoxCoordinatePosition = Random.Range(0, spawnPositions.Length-2);
         Vector2 tempSpawnCoordinate = spawnPositions[hitBoxCoordinatePosition];
 
         Vector2 newNotePosition = new Vector2(tempSpawnCoordinate.x, tempSpawnCoordinate.y); // based on a random spawn point
         GameObject newNoteObject = (GameObject)Instantiate(notePrefab, newNotePosition, notePrefab.transform.rotation);
 
         newNoteObject.GetComponent<Rigidbody2D>().velocity = new Vector2(0, speed);
+        totalNotes = totalNotes + 1;
     }
 
 
@@ -257,7 +233,9 @@ public class Game : MonoBehaviour {
                 else if (innerHitBox.getNoteIsTouching() && outerHitBox.getNoteIsTouching())
                 {
                     Debug.Log("PARTIAL");
+
                     score = score + 50;
+                    Destroy(innerHitBox.getNoteObject());
                     Destroy(outerHitBox.getNoteObject());
                     Ring ringObject = ((GameObject)Instantiate(ringPrefab, position, ringPrefab.transform.rotation)).GetComponent<Ring>();
                     ringObject.createYellowRing();
@@ -270,7 +248,7 @@ public class Game : MonoBehaviour {
                 else
                 {
                     Ring ringObject = ((GameObject)Instantiate(ringPrefab, position, ringPrefab.transform.rotation)).GetComponent<Ring>();
-                    ringObject.createRedRing();
+                    ringObject.createRedRing();             
                 }
             }
         }
@@ -301,6 +279,10 @@ public class Game : MonoBehaviour {
                 note.GetComponent<Note>().GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
             }
         }
+    }
+
+    public void endGame(){
+        Debug.Log("Naomi has ended the game without winning");
     }
 
 
