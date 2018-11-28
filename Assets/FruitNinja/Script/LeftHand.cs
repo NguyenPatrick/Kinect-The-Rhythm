@@ -11,11 +11,11 @@ public class LeftHand : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.W))
         {
-            GetComponent<Rigidbody2D>().velocity = new Vector2(0, 5);
+            GetComponent<Rigidbody2D>().velocity = new Vector2(0, 10);
         }
         else if (Input.GetKeyDown(KeyCode.S))
         {
-            GetComponent<Rigidbody2D>().velocity = new Vector2(0, -5);
+            GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
         }
 
 
