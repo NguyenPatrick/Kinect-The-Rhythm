@@ -5,18 +5,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // change scale based on difficulty
+// data logging: hit %
+// data logging: green %
+// data logging: yellow %
+
 
 public class Game : MonoBehaviour {
-
-    // profile based variables
-    public static int numberOfProfiles; // persistent variable
-    public static string firstName;
-    public static string lastName;
-    public static string leftOrRightHand;
-    public static string pictureFileLocation; // set default profile picture
-    public static bool isDeleted;
-
-
 
     private KinectManager kinectManager;
 
@@ -30,8 +24,6 @@ public class Game : MonoBehaviour {
     public static int partialNotes;
     public static int missedNotes;
 
-    private int totalNumberOfNotes;
-    private int numberOfNotesHit;
     public Text scoreText;
     public Text comboText;
     public Text timeText;
@@ -47,23 +39,22 @@ public class Game : MonoBehaviour {
 
     // hand controllers
     public GameObject leftHand;
-    public GameObject centerHand;
     public GameObject rightHand;
+
+    public GameObject pauseMenu;
+    public GameObject pauseButton;
+
 
     // virtual gameobjects controllers
     HitBox innerLeftHitBox;
-    HitBox innerCenterHitBox;
     HitBox innerRightHitBox;
     HitBox outerLeftHitBox;
-    HitBox outerCenterHitBox;
     HitBox outerRightHitBox;
 
     Trigger leftTrigger;
-    Trigger centerTrigger;
     Trigger rightTrigger;
 
     Charge leftCharge;
-    Charge centerCharge;
     Charge rightCharge;
 
     // apex points for the hit boxes, will be dependant on user
@@ -76,12 +67,12 @@ public class Game : MonoBehaviour {
     private const float handFactor = 7f;
 
     public Vector2[] spawnPositions; // possible spawn positions of the notes
-    private float waitTime = 2f; // cooldown for notes
+    private float waitTime = 1.5f; // cooldown for notes
     private float speed = -3f; // temp value
 
     private string gameMode;
     private string difficulty;
-    private float gameTime = 60;
+    private int gameTime = 60;
 
 
     private bool isPaused;
@@ -131,8 +122,9 @@ public class Game : MonoBehaviour {
         if (isPaused == false)
         {
             createNote();
-            yield return new WaitForSeconds(waitTime);
         }
+
+        yield return new WaitForSeconds(waitTime);
 
         StartCoroutine(noteTimer());
     }
@@ -141,12 +133,12 @@ public class Game : MonoBehaviour {
     {
         yield return new WaitForSeconds(1f);
 
-        if (gameTime > 0)
+        if (gameTime > 0 && isPaused == false)
         {
             gameTime = gameTime - 1;
             StartCoroutine(countDown());
         }
-        else
+        else if(gameTime == 0)
         {
             Debug.Log("Finished Game");
         }
@@ -195,7 +187,7 @@ public class Game : MonoBehaviour {
 
         scoreText.text = "Score: " + score;
         comboText.text = "Combo: " + combo;
-        timeText.text = "Time: " + gameTime;
+        timeText.text = "Time Left: " + gameTime;
 
         controlGameComponent(leftTrigger, leftCharge, innerLeftHitBox, outerLeftHitBox);
         controlGameComponent(rightTrigger, rightCharge, innerRightHitBox, outerRightHitBox);
@@ -287,11 +279,11 @@ public class Game : MonoBehaviour {
         }
     }
 
-
     public void pauseGame()
     {
         isPaused = true;
-        Debug.Log("pause");
+        pauseMenu.SetActive(true);
+        pauseButton.SetActive(false);
 
         foreach (GameObject note in GameObject.FindObjectsOfType(typeof(GameObject)))
         {
@@ -305,7 +297,9 @@ public class Game : MonoBehaviour {
     public void resumeGame(){
 
         isPaused = false;
-        Debug.Log("resume");
+        pauseMenu.SetActive(false);
+        pauseButton.SetActive(true);
+        StartCoroutine(countDown());
 
         foreach (GameObject note in GameObject.FindObjectsOfType(typeof(GameObject)))
         {
@@ -318,6 +312,6 @@ public class Game : MonoBehaviour {
 
     public void endGame()
     {
-        Debug.Log("Naomi has ended the game without winning");
+        Debug.Log("Naomi has ended the game without achieving anything");
     }
 }
