@@ -14,11 +14,12 @@ public class Game : MonoBehaviour {
     // score tracking
     public static int score;
     public static int combo;
+    public static int maxCombo;
     public static bool validCombo;
     public static int totalNotes;
     public static int perfectNotes;
     public static int partialNotes;
-    public static int notesMissed;
+    public static int missedNotes;
 
     private int totalNumberOfNotes;
     private int numberOfNotesHit;
@@ -103,8 +104,8 @@ public class Game : MonoBehaviour {
         rightCharge = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>();
 
         createGameComponent(0, hitBoxCoordinate.y - deleteFactor, deletePrefab);
-        createGameComponent(0, -2.25f, deletePrefab);
-        createGameComponent(0, -11.75f, deletePrefab);
+        createGameComponent(0, -2f, deletePrefab);
+        createGameComponent(0, -11.5f, deletePrefab);
 
 
         leftHand.transform.position = new Vector2(-hitBoxCoordinate.x, -handFactor);
@@ -219,9 +220,10 @@ public class Game : MonoBehaviour {
 
                 if (innerHitBox.getNoteIsTouching() && !outerHitBox.getNoteIsTouching())
                 {
-                    Debug.Log("FULL");
                     score = score + 100;
+                    perfectNotes = perfectNotes + 1;
                     Destroy(innerHitBox.getNoteObject());
+
                     Ring ringObject = ((GameObject)Instantiate(ringPrefab, position, ringPrefab.transform.rotation)).GetComponent<Ring>();
                     ringObject.createGreenRing();
 
@@ -232,11 +234,10 @@ public class Game : MonoBehaviour {
                 }
                 else if (innerHitBox.getNoteIsTouching() && outerHitBox.getNoteIsTouching())
                 {
-                    Debug.Log("PARTIAL");
-
                     score = score + 50;
+                    partialNotes = partialNotes + 1;
                     Destroy(innerHitBox.getNoteObject());
-                    Destroy(outerHitBox.getNoteObject());
+
                     Ring ringObject = ((GameObject)Instantiate(ringPrefab, position, ringPrefab.transform.rotation)).GetComponent<Ring>();
                     ringObject.createYellowRing();
 
@@ -247,8 +248,9 @@ public class Game : MonoBehaviour {
                 }
                 else
                 {
+                    missedNotes = missedNotes + 1;
                     Ring ringObject = ((GameObject)Instantiate(ringPrefab, position, ringPrefab.transform.rotation)).GetComponent<Ring>();
-                    ringObject.createRedRing();             
+                    ringObject.createRedRing();
                 }
             }
         }
