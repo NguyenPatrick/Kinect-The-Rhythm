@@ -18,6 +18,7 @@ public class BasicSample : MonoBehaviour {
 
         if (GUILayout.Button("Open File")) {
             WriteResult(StandaloneFileBrowser.OpenFilePanel("Open File", "", "", false));
+            Debug.Log(_path);
         }
         GUILayout.Space(5);
         if (GUILayout.Button("Open File Async")) {

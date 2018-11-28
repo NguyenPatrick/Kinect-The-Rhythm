@@ -58,25 +58,19 @@ public class Game : MonoBehaviour {
     Charge rightCharge;
 
     // apex points for the hit boxes, will be dependant on user
-    private Vector2 hitBoxCoordinate = new Vector2(2.5f, 2f);
+    private Vector2 hitBoxCoordinate = new Vector2(2.5f, 0f);
     private const float spawnFactor = 10f;
-    private const float triggerFactor = 5f; 
-    private const float chargeFactor = 12f;
+    private const float triggerFactor = 4f; 
+    private const float chargeFactor = 10.5f;
     private const float deleteFactor = 2.75f;
+    private const float controlFactor = 1f;
     private const float handFactor = 7f;
-    private const float maxHandDistance = 1f;
-    private const float maxHandHeight = -3.5f;
-    private const float minHandHeight = -10.5f;
 
     public Vector2[] spawnPositions; // possible spawn positions of the notes
     private float waitTime = 2f; // cooldown for notes
     private float speed = -3f; // temp value
 
     private bool isPaused;
-
-    // 0 lives
-    // 1 timed
-    private int gameMode; // easy, intermidiate, advanced
     private bool enableSpawn;
 
     public enum Hand { Left, Center, Right };
@@ -98,18 +92,18 @@ public class Game : MonoBehaviour {
         outerRightHitBox = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
 
         // generates the controls
-        leftTrigger= createGameComponent(-hitBoxCoordinate.x , hitBoxCoordinate.y - triggerFactor , triggerPrefab).GetComponent<Trigger>();
-        rightTrigger = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y - triggerFactor, triggerPrefab).GetComponent<Trigger>(); 
-        leftCharge = createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>();
-        rightCharge = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>();
+        leftTrigger= createGameComponent(-hitBoxCoordinate.x - controlFactor, hitBoxCoordinate.y - triggerFactor , triggerPrefab).GetComponent<Trigger>();
+        rightTrigger = createGameComponent(hitBoxCoordinate.x  + controlFactor, hitBoxCoordinate.y - triggerFactor, triggerPrefab).GetComponent<Trigger>(); 
+        leftCharge = createGameComponent(-hitBoxCoordinate.x - controlFactor, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>();
+        rightCharge = createGameComponent(hitBoxCoordinate.x + controlFactor, hitBoxCoordinate.y - chargeFactor, chargePrefab).GetComponent<Charge>();
 
-        createGameComponent(0, hitBoxCoordinate.y - deleteFactor, deletePrefab);
-        createGameComponent(0, -2f, deletePrefab);
+        //createGameComponent(0, hitBoxCoordinate.y - deleteFactor, deletePrefab);
+        createGameComponent(0, -3f, deletePrefab);
         createGameComponent(0, -11.5f, deletePrefab);
 
 
-        leftHand.transform.position = new Vector2(-hitBoxCoordinate.x, -handFactor);
-        rightHand.transform.position = new Vector2(hitBoxCoordinate.x, -handFactor);
+        leftHand.transform.position = new Vector2(-hitBoxCoordinate.x - controlFactor, -handFactor);
+        rightHand.transform.position = new Vector2(hitBoxCoordinate.x + controlFactor, -handFactor);
 
         enableSpawn = true;
         validCombo = true;
@@ -248,6 +242,7 @@ public class Game : MonoBehaviour {
                 }
                 else
                 {
+                    validCombo = false;
                     missedNotes = missedNotes + 1;
                     Ring ringObject = ((GameObject)Instantiate(ringPrefab, position, ringPrefab.transform.rotation)).GetComponent<Ring>();
                     ringObject.createRedRing();
@@ -268,25 +263,20 @@ public class Game : MonoBehaviour {
         }
     }
 
-   
-    public void pauseGame(){
 
+    public void pauseGame()
+    {
         isPaused = true;
         enableSpawn = false;
 
         foreach (GameObject note in GameObject.FindObjectsOfType(typeof(GameObject)))
         {
-            if (note.name == "Note(Clone)")
+            if (note.name == Note.noteName)
             {
                 note.GetComponent<Note>().GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
             }
         }
     }
-
-    public void endGame(){
-        Debug.Log("Naomi has ended the game without winning");
-    }
-
 
     public void resumeGame(){
 
@@ -295,10 +285,15 @@ public class Game : MonoBehaviour {
 
         foreach (GameObject note in GameObject.FindObjectsOfType(typeof(GameObject)))
         {
-            if (note.name == "Note(Clone)")
+            if (note.name == Note.noteName)
             {
                 note.GetComponent<Note>().GetComponent<Rigidbody2D>().velocity = new Vector2(0, speed);
             }
         }
+    }
+
+    public void endGame()
+    {
+        Debug.Log("Naomi has ended the game without winning");
     }
 }
