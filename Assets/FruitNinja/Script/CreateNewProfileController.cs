@@ -21,7 +21,7 @@ public class CreateNewProfileController : MonoBehaviour {
 
     public void onClickCreateProfileButton()
     {
-        ProfileController.profiles.Add()
+        //ProfileController.profiles.Add();
     }
 
 }
