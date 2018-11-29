@@ -39,11 +39,13 @@ public class Note : MonoBehaviour
         // when the boundary is hit, the note is destroyed and a red error ring is generated
         if (col.gameObject.name == HitBox.boundaryName)
         {
-            Game.validCombo = false;
             isFullyInHitZone = false;
             isPartiallyInHitZone = false;
-
             Destroy(this.gameObject);
+
+            Game.validCombo = false;
+            Game.missedNotes = Game.missedNotes + 1;
+
             Vector2 position = innerHitBox.GetComponent<Transform>().position;
             Ring ringObject = ((GameObject)Instantiate(ringPrefab, position, ringPrefab.transform.rotation)).GetComponent<Ring>();
             ringObject.createRedRing();

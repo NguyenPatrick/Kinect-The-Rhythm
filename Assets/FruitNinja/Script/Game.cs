@@ -70,9 +70,9 @@ public class Game : MonoBehaviour {
     private float waitTime = 1.5f; // cooldown for notes
     private float speed = -3f; // temp value
 
-    private string gameMode;
-    private string difficulty;
-    private int gameTime = 60;
+    private static string gameMode; 
+    private static string difficulty;
+    private static int gameTime = 60;
 
 
     private bool isPaused;
@@ -94,6 +94,8 @@ public class Game : MonoBehaviour {
         outerLeftHitBox = createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
         outerRightHitBox = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
 
+      //  innerLeftHitBox.gameObject.GetComponent<Transform>().localScale = new Vector3(2,2,0);
+
         // generates the controls
         leftTrigger= createGameComponent(-hitBoxCoordinate.x - controlFactor, hitBoxCoordinate.y - triggerFactor , triggerPrefab).GetComponent<Trigger>();
         rightTrigger = createGameComponent(hitBoxCoordinate.x  + controlFactor, hitBoxCoordinate.y - triggerFactor, triggerPrefab).GetComponent<Trigger>(); 
@@ -110,6 +112,14 @@ public class Game : MonoBehaviour {
 
         validCombo = true;
         isPaused = false;
+
+        score = 0;
+        combo = 0;
+        maxCombo = 0;
+        totalNotes = 0;
+        perfectNotes = 0;
+        partialNotes = 0;
+        missedNotes = 0;
 
         StartCoroutine(countDown());
         StartCoroutine(noteTimer());
@@ -270,6 +280,11 @@ public class Game : MonoBehaviour {
         {
             charge.setCharged();
             trigger.setNotTriggered();
+        }
+
+        if(combo > maxCombo)
+        {
+            maxCombo = combo;
         }
 
         if (validCombo == false)
