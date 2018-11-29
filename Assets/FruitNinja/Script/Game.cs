@@ -28,6 +28,11 @@ public class Game : MonoBehaviour {
     public Text comboText;
     public Text timeText;
 
+
+    public Text finalScoreText;
+    public Text highScoreText;
+    public Text maxComboText;
+
     // prefabs
     public GameObject notePrefab;
     public GameObject innerHitBoxPrefab;
@@ -40,9 +45,6 @@ public class Game : MonoBehaviour {
     // hand controllers
     public GameObject leftHand;
     public GameObject rightHand;
-
-    public GameObject pauseMenu;
-    public GameObject pauseButton;
 
 
     // virtual gameobjects controllers
@@ -72,10 +74,34 @@ public class Game : MonoBehaviour {
 
     private static string gameMode; 
     private static string difficulty;
-    private static int gameTime = 60;
+    private const int finalGameTime = 5;
+    private static int gameTime;
 
 
     private bool isPaused;
+    private bool isDetected;
+
+    public GameObject gameInfoMenu;
+    public GameObject scoreMenu;
+    public GameObject pauseMenu;
+    public GameObject gameOverMenu;
+    public GameObject detectedMenu;
+    public GameObject pauseButton;
+
+    public static bool trigger;
+
+    public void controlDetect()
+    {
+        if (trigger == true)
+        {
+            trigger = false;
+        }
+        else
+        {
+            trigger = true;
+        }
+    }
+
 
 
     void Start () {
@@ -111,7 +137,8 @@ public class Game : MonoBehaviour {
         rightHand.transform.position = new Vector2(hitBoxCoordinate.x + controlFactor, -handFactor);
 
         validCombo = true;
-        isPaused = false;
+
+        gameTime = finalGameTime;
 
         score = 0;
         combo = 0;
@@ -123,9 +150,9 @@ public class Game : MonoBehaviour {
 
         StartCoroutine(countDown());
         StartCoroutine(noteTimer());
-
+        isDetected = false;
+        isPaused = false;
     }
-
 
     public IEnumerator noteTimer()
     {
@@ -146,12 +173,13 @@ public class Game : MonoBehaviour {
         if (gameTime > 0 && isPaused == false)
         {
             gameTime = gameTime - 1;
-            StartCoroutine(countDown());
         }
         else if(gameTime == 0)
         {
-            Debug.Log("Finished Game");
+            endGame();
         }
+
+        StartCoroutine(countDown());
     }
 
 
@@ -194,6 +222,31 @@ public class Game : MonoBehaviour {
                 }
             }
         */
+
+        if(trigger)
+        {
+            if(isDetected == false)
+            {
+                resumeGame();
+                isDetected = true;
+                pauseButton.SetActive(true);
+                pauseMenu.SetActive(false);
+                scoreMenu.SetActive(true);
+                gameInfoMenu.SetActive(true);
+                detectedMenu.SetActive(false);
+            }
+        }
+        else
+        {
+            pauseGame();
+            isPaused = true;
+            isDetected = false;
+            pauseButton.SetActive(false);
+            pauseMenu.SetActive(false);
+            scoreMenu.SetActive(false);
+            gameInfoMenu.SetActive(false);
+            detectedMenu.SetActive(true);
+        }
 
         scoreText.text = "Score: " + score;
         comboText.text = "Combo: " + combo;
@@ -240,7 +293,7 @@ public class Game : MonoBehaviour {
 
                 if (innerHitBox.getNoteIsTouching() && !outerHitBox.getNoteIsTouching())
                 {
-                    score = score + 100;
+                    score = score + 100 + 5 * combo;
                     perfectNotes = perfectNotes + 1;
                     Destroy(innerHitBox.getNoteObject());
 
@@ -254,7 +307,7 @@ public class Game : MonoBehaviour {
                 }
                 else if (innerHitBox.getNoteIsTouching() && outerHitBox.getNoteIsTouching())
                 {
-                    score = score + 50;
+                    score = score + 50 + 5 * combo;
                     partialNotes = partialNotes + 1;
                     Destroy(innerHitBox.getNoteObject());
 
@@ -314,7 +367,6 @@ public class Game : MonoBehaviour {
         isPaused = false;
         pauseMenu.SetActive(false);
         pauseButton.SetActive(true);
-        StartCoroutine(countDown());
 
         foreach (GameObject note in GameObject.FindObjectsOfType(typeof(GameObject)))
         {
@@ -328,5 +380,21 @@ public class Game : MonoBehaviour {
     public void endGame()
     {
         Debug.Log("Naomi has ended the game without achieving anything");
+
+        isPaused = true;
+        pauseButton.SetActive(false);
+        pauseMenu.SetActive(false);
+        scoreMenu.SetActive(false);
+        gameInfoMenu.SetActive(false);
+        detectedMenu.SetActive(false);
+        gameOverMenu.SetActive(true);
+
+        foreach (GameObject note in GameObject.FindObjectsOfType(typeof(GameObject)))
+        {
+            if (note.name == Note.noteName)
+            {
+                Destroy(note);
+            }
+        }
     }
 }

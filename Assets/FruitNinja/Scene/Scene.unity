@@ -704,14 +704,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c43cc64fe3ad014db203053ff8c9239, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startPanel: {fileID: 224208728893897100, guid: 008e8b8dd00588d4c82e0ee5a91e664a,
-    type: 2}
-  viewProfilePanel: {fileID: 0}
-  newProfilePanel: {fileID: 0}
-  configPanel: {fileID: 0}
-  howToPanel: {fileID: 0}
-  gamePanel: {fileID: 224288415490400168, guid: 11a57f756f5d68d439f1772257b2680e,
-    type: 2}
 --- !u!114 &1513359747
 MonoBehaviour:
   m_ObjectHideFlags: 0

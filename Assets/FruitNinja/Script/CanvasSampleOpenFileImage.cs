@@ -10,6 +10,7 @@ using SFB;
 [RequireComponent(typeof(Button))]
 public class CanvasSampleOpenFileImage : MonoBehaviour, IPointerDownHandler {
     public RawImage output;
+    public static string path;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
     //
@@ -43,14 +44,16 @@ public class CanvasSampleOpenFileImage : MonoBehaviour, IPointerDownHandler {
            };
         var paths = StandaloneFileBrowser.OpenFilePanel("Title", "", extensions, false);
         if (paths.Length > 0) {
-            StartCoroutine(OutputRoutine(new System.Uri(paths[0]).AbsoluteUri));
+            StartCoroutine(OutputRoutine(output, new System.Uri(paths[0]).AbsoluteUri));
         }
     }
 #endif
 
-    private IEnumerator OutputRoutine(string url) {
+    public static IEnumerator OutputRoutine(RawImage image, string url) {
+        Debug.Log(url);
+        path = url;
         var loader = new WWW(url);
         yield return loader;
-        output.texture = loader.texture;
+        image.texture = loader.texture;
     }
 }

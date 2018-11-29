@@ -11,4 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/FruitNinja/Scene/Home.unity
     guid: db3f85e388f024667bf47b0a442a6c2b
+  - enabled: 1
+    path: Assets/FruitNinja/Scene/Profile.unity
+    guid: 12a1ede7940ef094cb8b226a2a972dd4
+  - enabled: 1
+    path: Assets/FruitNinja/Scene/CreateProfile.unity
+    guid: c518a6f771604ae42af35e6328a09029
   m_configObjects: {}

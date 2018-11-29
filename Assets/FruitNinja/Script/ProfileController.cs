@@ -19,15 +19,28 @@ public class ProfileController : MonoBehaviour {
 	void Start () {
         profiles = new List<string>();
         profileButtons = new List<GameObject>();
-        profiles.Add("Hello World Both Hands");
-        profiles.Add("Bocar Raspberry Right Hand");
-        profiles.Add("Kinect Boi Left Hand");
-        profiles.Add("three person Both Hands");
-        profiles.Add("pi Raspberry Right Hand");
-        profiles.Add("one two Left Hand");
 
-        profiles.Add("page two Right Hand");
-        profiles.Add("page twotwo Left Hand");
+
+        for (int i = 0; i < CreateNewProfileController.getNumberOfProfiles(); i++)
+        {
+            string profileInfo = CreateNewProfileController.getUserProfile(i);
+
+            if (profileInfo != null)
+            {
+                profiles.Add(profileInfo);
+            }
+        }
+
+        profiles.Add("Hello World file:///Users/nguyenpatrick/Downloads/46501136_1830320980399189_6584738988563628032_o.jpg");
+        profiles.Add("Bocar Raspberry file:///Users/nguyenpatrick/Downloads/46501136_1830320980399189_6584738988563628032_o.jpg");
+        profiles.Add("Kinect Boi file:///Users/nguyenpatrick/Downloads/46501136_1830320980399189_6584738988563628032_o.jpg");
+        profiles.Add("three person file:///Users/nguyenpatrick/Downloads/46501136_1830320980399189_6584738988563628032_o.jpg");
+        profiles.Add("pi Raspberry file:///Users/nguyenpatrick/Downloads/46501136_1830320980399189_6584738988563628032_o.jpg");
+        profiles.Add("one two file:///Users/nguyenpatrick/Downloads/46501136_1830320980399189_6584738988563628032_o.jpg");
+
+        profiles.Add("page two file:///Users/nguyenpatrick/Downloads/46501136_1830320980399189_6584738988563628032_o.jpg");
+        profiles.Add("page twotwo file:///Users/nguyenpatrick/Downloads/46501136_1830320980399189_6584738988563628032_o.jpg");
+
 
         PopulateProfileButtonsList();
 
@@ -78,12 +91,9 @@ public class ProfileController : MonoBehaviour {
             newButton.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
 
             newButton.GetComponentInChildren<Text>().text = profileStrArray[0] + ", " + profileStrArray[1];
-            if (profileStrArray[2].Equals("Right")){
-                newButton.GetComponentsInChildren<Image>()[3].enabled = false;
-            }else if (profileStrArray[2].Equals("Left")){
-                newButton.GetComponentsInChildren<Image>()[2].enabled = false;
-            }
 
+            Debug.Log(profileStrArray[2]);
+            StartCoroutine(CanvasSampleOpenFileImage.OutputRoutine(newButton.GetComponent<RawImage>(), profileStrArray[2]));
             profileButtons.Add(newButton);
         }
     }
