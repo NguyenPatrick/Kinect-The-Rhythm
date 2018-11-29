@@ -261,7 +261,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 614760710}
-        m_MethodName: pauseGame
+        m_MethodName: controlDetect
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -458,7 +458,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 614760710}
-        m_MethodName: pauseGame
+        m_MethodName: controlDetect
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -787,6 +787,7 @@ GameObject:
   - component: {fileID: 614760709}
   - component: {fileID: 614760708}
   - component: {fileID: 614760707}
+  - component: {fileID: 614760711}
   - component: {fileID: 614760710}
   m_Layer: 5
   m_Name: Player UI
@@ -890,6 +891,9 @@ MonoBehaviour:
   scoreText: {fileID: 1762310976}
   comboText: {fileID: 719198622}
   timeText: {fileID: 295419027}
+  finalScoreText: {fileID: 962461408}
+  highScoreText: {fileID: 524612268}
+  maxComboText: {fileID: 2103972411}
   notePrefab: {fileID: 159048, guid: 5e9769309d21441d3ab40eb82dd37d7a, type: 2}
   innerHitBoxPrefab: {fileID: 1742670129219550, guid: 794f14cd63abd4b27b86297580195bcb,
     type: 2}
@@ -908,9 +912,20 @@ MonoBehaviour:
   gameInfoMenu: {fileID: 1539260570}
   scoreMenu: {fileID: 970572804}
   pauseMenu: {fileID: 1098988425}
-  gameOverMenu: {fileID: 0}
+  gameOverMenu: {fileID: 1648929807}
   detectedMenu: {fileID: 96548526}
   pauseButton: {fileID: 126386591}
+--- !u!114 &614760711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 614760705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c62f6d6bdcc24c24ab5c60d7c4df111, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &636510735 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1015813976619428, guid: 033cf82b0954544d9ba58563dd83114d,
@@ -1589,7 +1604,7 @@ GameObject:
   - component: {fileID: 1603048480}
   - component: {fileID: 1603048479}
   m_Layer: 5
-  m_Name: DetectText
+  m_Name: TimeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1669,7 +1684,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1648929808
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1970,8 +1985,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 614760710}
-        m_MethodName: pauseGame
+      - m_Target: {fileID: 614760711}
+        m_MethodName: changeToHomeScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2157,8 +2172,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 614760710}
-        m_MethodName: pauseGame
+      - m_Target: {fileID: 614760711}
+        m_MethodName: changeToHomeScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

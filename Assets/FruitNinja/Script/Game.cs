@@ -74,7 +74,7 @@ public class Game : MonoBehaviour {
 
     private static string gameMode; 
     private static string difficulty;
-    private const int finalGameTime = 5;
+    private const int finalGameTime = 10;
     private static int gameTime;
 
 

@@ -93,7 +93,7 @@ public class ProfileController : MonoBehaviour {
             newButton.GetComponentInChildren<Text>().text = profileStrArray[0] + ", " + profileStrArray[1];
 
             Debug.Log(profileStrArray[2]);
-            StartCoroutine(CanvasSampleOpenFileImage.OutputRoutine(newButton.GetComponent<RawImage>(), profileStrArray[2]));
+            StartCoroutine(CanvasSampleOpenFileImage.OutputRoutine(newButton.transform.Find("ProfileImage").GetComponent<RawImage>(), profileStrArray[2]));
             profileButtons.Add(newButton);
         }
     }
