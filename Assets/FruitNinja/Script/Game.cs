@@ -80,6 +80,7 @@ public class Game : MonoBehaviour {
 
     private bool isPaused;
     private bool isDetected;
+    private bool gameOver;
 
     public GameObject gameInfoMenu;
     public GameObject scoreMenu;
@@ -152,6 +153,7 @@ public class Game : MonoBehaviour {
         StartCoroutine(noteTimer());
         isDetected = false;
         isPaused = false;
+        gameOver = false;
     }
 
     public IEnumerator noteTimer()
@@ -185,68 +187,74 @@ public class Game : MonoBehaviour {
 
     void Update()
     {
-        // run code to detect the user --> detected user in 3..2..1
-        // if(user can't be detected, pause the game)
 
-        /*
-         * for all values in the queue, dequeue and set velocity to zero
-         * all the dequeues values to pauseQueue, when user is detected again
-         * re add all the pauseQueue values into the noteQueue
-         */
-
-        // if user is detected again, game continues in 3..2..1
-
-        // every x-y seconds, depending on difficulty, generate a note at a random location
-        // different note types for different difficulties
-
-        /*
-        // moves controls vertically relative to hands
-          if (kinectManager && kinectManager.IsInitialized())
+        if (kinectManager.IsInitialized())
+        {
+            Debug.Log("Created");
+            // moves controls vertically relative to hands
+            if (kinectManager.IsUserDetected())
             {
-                if (kinectManager.IsUserDetected())
+                Debug.Log("Detected");
+                if (isDetected == false)
                 {
-                    long userId = kinectManager.GetPrimaryUserID();
-                    int jointType = (int)KinectInterop.JointType.HandRight;
-                    if (kinectManager.IsJointTracked(userId, jointType))
-                    {
-                        Vector3 rHandPosition = kinectManager.GetJointKinectPosition(userId, jointType);
-                        rightHand.transform.position = new Vector3(rightHand.transform.position.x, rHandPosition.y, rightHand.transform.position.z);
-                    }
+                    resumeGame();
+                    isDetected = true;
+                    pauseButton.SetActive(true);
+                    pauseMenu.SetActive(false);
+                    scoreMenu.SetActive(true);
+                    gameInfoMenu.SetActive(true);
+                    detectedMenu.SetActive(false);
+                }
 
-                    jointType = (int)KinectInterop.JointType.HandLeft;
-                    if (kinectManager.IsJointTracked(userId, jointType))
+                long userId = kinectManager.GetPrimaryUserID();
+                int jointType = (int)KinectInterop.JointType.HandRight;
+                if (kinectManager.IsJointTracked(userId, jointType))
+                {
+                    Vector3 rHandPosition = kinectManager.GetJointKinectPosition(userId, jointType);
+                    rightHand.transform.position = new Vector2(hitBoxCoordinate.x + controlFactor, 13.5f * rHandPosition.y - 8f);
+
+                    if (rightHand.transform.position.y > -4)
                     {
-                        Vector3 lHandPosition = kinectManager.GetJointKinectPosition(userId, jointType);
-                        leftHand.transform.position = new Vector3(leftHand.transform.position.x, lHandPosition.y, leftHand.transform.position.z);
+                        rightHand.transform.position = new Vector2(hitBoxCoordinate.x + controlFactor, -4f);
+                    }
+                    if (rightHand.transform.position.y < -10.5)
+                    {
+                        rightHand.transform.position = new Vector2(hitBoxCoordinate.x + controlFactor, -10.5f);
+                    }
+                }
+
+                jointType = (int)KinectInterop.JointType.HandLeft;
+                if (kinectManager.IsJointTracked(userId, jointType))
+                {
+                    Vector3 lHandPosition = kinectManager.GetJointKinectPosition(userId, jointType);
+                    leftHand.transform.position = new Vector2(-hitBoxCoordinate.x - controlFactor, 13.5f * lHandPosition.y - 8f);
+
+                    if(leftHand.transform.position.y  > -4)
+                    {
+                        leftHand.transform.position = new Vector2(-hitBoxCoordinate.x - controlFactor, -4f);
+                    }
+                    if (leftHand.transform.position.y < -10.5)
+                    {
+                        leftHand.transform.position = new Vector2(-hitBoxCoordinate.x - controlFactor, -10.5f);
                     }
                 }
             }
-        */
-
-        if(trigger)
-        {
-            if(isDetected == false)
+            else
             {
-                resumeGame();
-                isDetected = true;
-                pauseButton.SetActive(true);
-                pauseMenu.SetActive(false);
-                scoreMenu.SetActive(true);
-                gameInfoMenu.SetActive(true);
-                detectedMenu.SetActive(false);
+                if(gameOver == false)
+                {
+                    pauseGame();
+                    isPaused = true;
+                    isDetected = false;
+                    pauseButton.SetActive(false);
+                    pauseMenu.SetActive(false);
+                    scoreMenu.SetActive(false);
+                    gameInfoMenu.SetActive(false);
+                    detectedMenu.SetActive(true);
+                }
             }
         }
-        else
-        {
-            pauseGame();
-            isPaused = true;
-            isDetected = false;
-            pauseButton.SetActive(false);
-            pauseMenu.SetActive(false);
-            scoreMenu.SetActive(false);
-            gameInfoMenu.SetActive(false);
-            detectedMenu.SetActive(true);
-        }
+
 
         scoreText.text = "Score: " + score;
         comboText.text = "Combo: " + combo;
@@ -382,6 +390,7 @@ public class Game : MonoBehaviour {
         Debug.Log("Naomi has ended the game without achieving anything");
 
         isPaused = true;
+        gameOver = true;
         pauseButton.SetActive(false);
         pauseMenu.SetActive(false);
         scoreMenu.SetActive(false);
