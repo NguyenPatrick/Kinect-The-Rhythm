@@ -21,7 +21,13 @@ public class CreateNewProfileController : MonoBehaviour {
 
     public void onClickCreateProfileButton()
     {
+<<<<<<< Updated upstream
         //ProfileController.profiles.Add();
+=======
+        string profileString = lastNameInput.text + " " + firstNameInput.text + " " + gameTypeDropdown.itemText;
+        ProfileController.profiles.Add(profileString);
+        ProfileController.profiles.Sort();
+>>>>>>> Stashed changes
     }
 
 }

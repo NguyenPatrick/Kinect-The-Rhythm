@@ -37,7 +37,7 @@ public class KinectManager : MonoBehaviour
 	
 	[Tooltip("Whether to utilize the IR camera image.")]
 	public bool computeInfraredMap = false;
-	
+    
 	[Tooltip("Whether to display the user map on the screen.")]
 	public bool displayUserMap = false;
 	
@@ -2490,7 +2490,8 @@ public class KinectManager : MonoBehaviour
 
 				//GUI.DrawTexture(usersClrRect, usersClrTex);
 				GUI.DrawTexture(usersClrRect, sensorData.colorImageTexture);
-			}
+
+            }
 		}
     }
 
