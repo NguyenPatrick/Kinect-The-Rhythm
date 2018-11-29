@@ -30,6 +30,20 @@ public class CreateNewProfileController : MonoBehaviour
         return PlayerPrefs.GetString("userProfile" + id);
     }
 
+    public static int getHighScore()
+    {
+        return PlayerPrefs.GetInt("highScore");
+    }
+
+    public static void saveHighScore(int newScore)
+    {
+        if(PlayerPrefs.GetInt("highScore") < newScore)
+        {
+            PlayerPrefs.SetInt("highScore", newScore);
+        }
+    }
+
+
     public static string arrayToString(string[] array)
     {
         string newString = "";

@@ -74,7 +74,7 @@ public class Game : MonoBehaviour {
 
     private static string gameMode; 
     private static string difficulty;
-    private const int finalGameTime = 10;
+    private const int finalGameTime = 30;
     private static int gameTime;
 
 
@@ -211,7 +211,7 @@ public class Game : MonoBehaviour {
                 if (kinectManager.IsJointTracked(userId, jointType))
                 {
                     Vector3 rHandPosition = kinectManager.GetJointKinectPosition(userId, jointType);
-                    rightHand.transform.position = new Vector2(hitBoxCoordinate.x + controlFactor, 13.5f * rHandPosition.y - 8f);
+                    rightHand.transform.position = new Vector2(hitBoxCoordinate.x + controlFactor, 22f * rHandPosition.y - 8f);
 
                     if (rightHand.transform.position.y > -4)
                     {
@@ -227,7 +227,7 @@ public class Game : MonoBehaviour {
                 if (kinectManager.IsJointTracked(userId, jointType))
                 {
                     Vector3 lHandPosition = kinectManager.GetJointKinectPosition(userId, jointType);
-                    leftHand.transform.position = new Vector2(-hitBoxCoordinate.x - controlFactor, 13.5f * lHandPosition.y - 8f);
+                    leftHand.transform.position = new Vector2(-hitBoxCoordinate.x - controlFactor, 22f * lHandPosition.y - 8f);
 
                     if(leftHand.transform.position.y  > -4)
                     {
@@ -397,6 +397,12 @@ public class Game : MonoBehaviour {
         gameInfoMenu.SetActive(false);
         detectedMenu.SetActive(false);
         gameOverMenu.SetActive(true);
+
+        CreateNewProfileController.saveHighScore(score);
+        finalScoreText.text = "Score: " + score;
+        highScoreText.text = "High Score: " + CreateNewProfileController.getHighScore();
+        maxComboText.text = "Max Combo: " + maxCombo;
+
 
         foreach (GameObject note in GameObject.FindObjectsOfType(typeof(GameObject)))
         {
