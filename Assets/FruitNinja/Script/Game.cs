@@ -5,9 +5,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // change scale based on difficulty
+// data logging: hit %
+// data logging: green %
+// data logging: yellow %
+
 
 public class Game : MonoBehaviour {
-
 
     private KinectManager kinectManager;
 
@@ -21,11 +24,9 @@ public class Game : MonoBehaviour {
     public static int partialNotes;
     public static int missedNotes;
 
-    private int totalNumberOfNotes;
-    private int numberOfNotesHit;
     public Text scoreText;
-    public Text difficultyText;
     public Text comboText;
+    public Text timeText;
 
     // prefabs
     public GameObject notePrefab;
@@ -38,23 +39,22 @@ public class Game : MonoBehaviour {
 
     // hand controllers
     public GameObject leftHand;
-    public GameObject centerHand;
     public GameObject rightHand;
+
+    public GameObject pauseMenu;
+    public GameObject pauseButton;
+
 
     // virtual gameobjects controllers
     HitBox innerLeftHitBox;
-    HitBox innerCenterHitBox;
     HitBox innerRightHitBox;
     HitBox outerLeftHitBox;
-    HitBox outerCenterHitBox;
     HitBox outerRightHitBox;
 
     Trigger leftTrigger;
-    Trigger centerTrigger;
     Trigger rightTrigger;
 
     Charge leftCharge;
-    Charge centerCharge;
     Charge rightCharge;
 
     // apex points for the hit boxes, will be dependant on user
@@ -67,13 +67,16 @@ public class Game : MonoBehaviour {
     private const float handFactor = 7f;
 
     public Vector2[] spawnPositions; // possible spawn positions of the notes
-    private float waitTime = 2f; // cooldown for notes
+    private float waitTime = 1.5f; // cooldown for notes
     private float speed = -3f; // temp value
 
-    private bool isPaused;
-    private bool enableSpawn;
+    private static string gameMode; 
+    private static string difficulty;
+    private static int gameTime = 60;
 
-    public enum Hand { Left, Center, Right };
+
+    private bool isPaused;
+
 
     void Start () {
 
@@ -91,6 +94,8 @@ public class Game : MonoBehaviour {
         outerLeftHitBox = createGameComponent(-hitBoxCoordinate.x, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
         outerRightHitBox = createGameComponent(hitBoxCoordinate.x, hitBoxCoordinate.y, outerHitBoxPrefab).GetComponent<HitBox>();
 
+      //  innerLeftHitBox.gameObject.GetComponent<Transform>().localScale = new Vector3(2,2,0);
+
         // generates the controls
         leftTrigger= createGameComponent(-hitBoxCoordinate.x - controlFactor, hitBoxCoordinate.y - triggerFactor , triggerPrefab).GetComponent<Trigger>();
         rightTrigger = createGameComponent(hitBoxCoordinate.x  + controlFactor, hitBoxCoordinate.y - triggerFactor, triggerPrefab).GetComponent<Trigger>(); 
@@ -105,20 +110,47 @@ public class Game : MonoBehaviour {
         leftHand.transform.position = new Vector2(-hitBoxCoordinate.x - controlFactor, -handFactor);
         rightHand.transform.position = new Vector2(hitBoxCoordinate.x + controlFactor, -handFactor);
 
-        enableSpawn = true;
         validCombo = true;
+        isPaused = false;
+
+        score = 0;
+        combo = 0;
+        maxCombo = 0;
+        totalNotes = 0;
+        perfectNotes = 0;
+        partialNotes = 0;
+        missedNotes = 0;
+
+        StartCoroutine(countDown());
+        StartCoroutine(noteTimer());
+
     }
 
 
     public IEnumerator noteTimer()
     {
-        enableSpawn = false;
+        if (isPaused == false)
+        {
+            createNote();
+        }
+
         yield return new WaitForSeconds(waitTime);
 
-        if(isPaused == true){
-            StartCoroutine(noteTimer());
-        } else{
-            enableSpawn = true;
+        StartCoroutine(noteTimer());
+    }
+
+    public IEnumerator countDown()
+    {
+        yield return new WaitForSeconds(1f);
+
+        if (gameTime > 0 && isPaused == false)
+        {
+            gameTime = gameTime - 1;
+            StartCoroutine(countDown());
+        }
+        else if(gameTime == 0)
+        {
+            Debug.Log("Finished Game");
         }
     }
 
@@ -165,13 +197,7 @@ public class Game : MonoBehaviour {
 
         scoreText.text = "Score: " + score;
         comboText.text = "Combo: " + combo;
-
-
-        if (enableSpawn == true)
-        {
-            createNote();
-            StartCoroutine(noteTimer());
-        }
+        timeText.text = "Time Left: " + gameTime;
 
         controlGameComponent(leftTrigger, leftCharge, innerLeftHitBox, outerLeftHitBox);
         controlGameComponent(rightTrigger, rightCharge, innerRightHitBox, outerRightHitBox);
@@ -256,6 +282,11 @@ public class Game : MonoBehaviour {
             trigger.setNotTriggered();
         }
 
+        if(combo > maxCombo)
+        {
+            maxCombo = combo;
+        }
+
         if (validCombo == false)
         {
             validCombo = true;
@@ -263,11 +294,11 @@ public class Game : MonoBehaviour {
         }
     }
 
-
     public void pauseGame()
     {
         isPaused = true;
-        enableSpawn = false;
+        pauseMenu.SetActive(true);
+        pauseButton.SetActive(false);
 
         foreach (GameObject note in GameObject.FindObjectsOfType(typeof(GameObject)))
         {
@@ -281,7 +312,9 @@ public class Game : MonoBehaviour {
     public void resumeGame(){
 
         isPaused = false;
-        noteTimer();
+        pauseMenu.SetActive(false);
+        pauseButton.SetActive(true);
+        StartCoroutine(countDown());
 
         foreach (GameObject note in GameObject.FindObjectsOfType(typeof(GameObject)))
         {
@@ -294,6 +327,6 @@ public class Game : MonoBehaviour {
 
     public void endGame()
     {
-        Debug.Log("Naomi has ended the game without winning");
+        Debug.Log("Naomi has ended the game without achieving anything");
     }
 }
