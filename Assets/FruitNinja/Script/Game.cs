@@ -211,7 +211,7 @@ public class Game : MonoBehaviour {
                 if (kinectManager.IsJointTracked(userId, jointType))
                 {
                     Vector3 rHandPosition = kinectManager.GetJointKinectPosition(userId, jointType);
-                    rightHand.transform.position = new Vector2(hitBoxCoordinate.x + controlFactor, 22f * rHandPosition.y - 8f);
+                    rightHand.transform.position = new Vector2(hitBoxCoordinate.x + controlFactor, 24f * rHandPosition.y - 10f);
 
                     if (rightHand.transform.position.y > -4)
                     {
@@ -227,7 +227,7 @@ public class Game : MonoBehaviour {
                 if (kinectManager.IsJointTracked(userId, jointType))
                 {
                     Vector3 lHandPosition = kinectManager.GetJointKinectPosition(userId, jointType);
-                    leftHand.transform.position = new Vector2(-hitBoxCoordinate.x - controlFactor, 22f * lHandPosition.y - 8f);
+                    leftHand.transform.position = new Vector2(-hitBoxCoordinate.x - controlFactor, 24f * lHandPosition.y - 10f);
 
                     if(leftHand.transform.position.y  > -4)
                     {
