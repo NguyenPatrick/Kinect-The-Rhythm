@@ -27,6 +27,7 @@ public class CreateNewProfileController : MonoBehaviour
 
     public static string getUserProfile(int id)
     {
+<<<<<<< HEAD
         return PlayerPrefs.GetString("userProfile" + id);
     }
 
@@ -47,6 +48,11 @@ public class CreateNewProfileController : MonoBehaviour
         }
 
         return newString;
+=======
+        string profileString = lastNameInput.text + " " + firstNameInput.text + " " + gameTypeDropdown.itemText;
+        ProfileController.profiles.Add(profileString);
+        ProfileController.profiles.Sort();
+>>>>>>> 14b21b8d6f46b0d9f8391de3e00a9590522385fc
     }
 
 
