@@ -1,4 +1,4 @@
-# Kinect the Rythm
+# Kinect the Rhythm
 Turns hospital rehabilitation therapy sessions into a fun and engaging activity using the Xbox Kinect.
 Built using Kinect SDK 1.8, Unity 3D and C#
 
